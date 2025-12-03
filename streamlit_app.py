@@ -1,31 +1,36 @@
 import streamlit as st
 import google.generativeai as genai
+import json
 
 # --- CONFIGURATION ---
-# ⚠️ PASTE YOUR API KEY HERE ⚠️
 API_KEY = st.secrets["api"]
 
-# --- MOCK DATABASE (The "Gear Lab") ---
-# You can add hundreds of subs here.
-SUBWOOFER_DB = [
-    {"brand": "Sundown Audio", "model": "Zv6 15", "size": "15", "rms": 2500, "type": "SPL/Low-End Monster", "price": 1100},
-    {"brand": "Sundown Audio", "model": "Xv3 12", "size": "12", "rms": 2000, "type": "Daily Banger", "price": 800},
-    {"brand": "DC Audio", "model": "Level 6 18", "size": "18", "rms": 4500, "type": "Competition Only", "price": 2200},
-    {"brand": "Digital Designs", "model": "9915", "size": "15", "rms": 3500, "type": "Precision SPL", "price": 1800},
-    {"brand": "Fi Car Audio", "model": "Neo 3.5", "size": "15", "rms": 2500, "type": "Neo Motor Efficient", "price": 1400},
-    {"brand": "Kicker", "model": "SoloX L7X", "size": "12", "rms": 2000, "type": "Square Cone/Space Saver", "price": 1000},
-]
+# --- LOAD DATABASES ---
+try:
+    with open("subwoofer_db.json", "r") as f:
+        SUBWOOFER_DB = json.load(f)
+except Exception as e:
+    st.error(f"Error loading subwoofer database: {e}")
+    SUBWOOFER_DB = []
+
+try:
+    with open("models.json", "r") as f:
+        MODEL_LIST = json.load(f)
+except Exception as e:
+    st.error(f"Error loading model list: {e}")
+    MODEL_LIST = []
 
 # --- ROBUST MODEL FINDER ---
 def get_working_model():
-    model_list = ['models/gemini-2.0-flash-live', 'models/gemini-2.5-flash-live']
-    for model_name in model_list:
+    for model_name in MODEL_LIST:
         try:
             model = genai.GenerativeModel(model_name)
             model.generate_content("test")
             return model
-        except:
+        except Exception as e:
+            st.warning(f"Model {model_name} failed: {e}")
             continue
+    st.error("No working model found.")
     return None
 
 # Configure API
