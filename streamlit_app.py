@@ -63,7 +63,7 @@ st.set_page_config(page_title="AlphaAudio V3", page_icon="☢️", layout="wide"
 st.title("☢️ AlphaAudio: DeepMind Logic Engine")
 
 # TABS
-tab_sim, tab_gear = st.tabs(["🎛️ Design Studio (Simulation)", "🧪 Gear Lab (Database)"])
+tab_sim, tab_gear, tab_compare = st.tabs(["🎛️ Design Studio (Simulation)", "🧪 Gear Lab (Database)", "⚔️ Build Comparison"])
 
 # ==============================================================================
 # TAB 1: DESIGN STUDIO (The Iterative Simulator)
@@ -190,7 +190,6 @@ with tab_gear:
 # ==============================================================================
 # TAB 3: BUILD COMPARISON (Multi-Setup Evaluator)
 # ==============================================================================
-tab_compare = st.tabs(["⚔️ Build Comparison"])[0]
 
 with tab_compare:
     st.header("⚔️ Compare Multiple Builds")
