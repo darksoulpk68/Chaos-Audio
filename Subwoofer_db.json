@@ -1,50 +1,18 @@
 [
-  {
-    "brand": "Sundown Audio",
-    "model": "Zv6 15",
-    "size": "15",
-    "rms": 2500,
-    "type": "SPL/Low-End Monster",
-    "price": 1100
-  },
-  {
-    "brand": "Sundown Audio",
-    "model": "Xv3 12",
-    "size": "12",
-    "rms": 2000,
-    "type": "Daily Banger",
-    "price": 800
-  },
-  {
-    "brand": "DC Audio",
-    "model": "Level 6 18",
-    "size": "18",
-    "rms": 4500,
-    "type": "Competition Only",
-    "price": 2200
-  },
-  {
-    "brand": "Digital Designs",
-    "model": "9915",
-    "size": "15",
-    "rms": 3500,
-    "type": "Precision SPL",
-    "price": 1800
-  },
-  {
-    "brand": "Fi Car Audio",
-    "model": "Neo 3.5",
-    "size": "15",
-    "rms": 2500,
-    "type": "Neo Motor Efficient",
-    "price": 1400
-  },
-  {
-    "brand": "Kicker",
-    "model": "SoloX L7X",
-    "size": "12",
-    "rms": 2000,
-    "type": "Square Cone/Space Saver",
-    "price": 1000
-  }
+        {"brand": "Sundown", "model": "Zv6 18", "size": "18", "rms": 2500, "fs": 21, "xmax": 35, "price": 1200, "type": "Wind/Low-End"},
+        {"brand": "Sundown", "model": "Zv6 12", "size": "12", "rms": 2500, "fs": 35, "xmax": 35, "price": 900, "type": "High-Power/Compact"},
+        {"brand": "DC Audio", "model": "Level 6 18", "size": "18", "rms": 4500, "fs": 26, "xmax": 40, "price": 2200, "type": "Competition SPL"},
+        {"brand": "Fi Car Audio", "model": "Neo 3.5 12", "size": "12", "rms": 2500, "fs": 32, "xmax": 30, "price": 1100, "type": "Neo Efficiency"},
+        {"brand": "Fi Car Audio", "model": "Neo 3.5 21", "size": "21", "rms": 3000, "fs": 18, "xmax": 30, "price": 1600, "type": "Extreme Wind"},
+        {"brand": "Digital Designs", "model": "9912", "size": "12", "rms": 3500, "fs": 38, "xmax": 25, "price": 1600, "type": "Punch/Burp"},
+        {"brand": "Digital Designs", "model": "9918", "size": "18", "rms": 3500, "fs": 28, "xmax": 28, "price": 2000, "type": "Musical Ground Pounder"},
+        {"brand": "Kicker", "model": "SoloX 10", "size": "10", "rms": 2000, "fs": 40, "xmax": 20, "price": 800, "type": "Fast Bass/Rock"},
+        {"brand": "Stereo Integrity", "model": "SQL 15", "size": "15", "rms": 1000, "fs": 24, "xmax": 28, "price": 600, "type": "Sound Quality"},
+        {"brand": "Stereo Integrity", "model": "DBX 18", "size": "18", "rms": 3000, "fs": 20, "xmax": 32, "price": 1500, "type": "Deep Bass/Power"},
+        {"brand": "JL Audio", "model": "W7AE 12", "size": "12", "rms": 1000, "fs": 30, "xmax": 20, "price": 900, "type": "W7 Series"},
+        {"brand": "JL Audio", "model": "W7AE 15", "size": "15", "rms": 1200, "fs": 28, "xmax": 20, "price": 1100, "type": "W7 Series"},
+        {"brand": "Rockford Fosgate", "model": "T3D2-12", "size": "12", "rms": 1500, "fs": 35, "xmax": 22, "price": 700, "type": "Punch/Titanium"},
+        {"brand": "Rockford Fosgate", "model": "T3D4-15", "size": "15", "rms": 2000, "fs": 30, "xmax": 24, "price": 900, "type": "Punch/Titanium"},
+        {"brand": "Alphard Sound Technology", "model": "Max-12D2", "size": "12", "rms": 2500, "fs": 33, "xmax": 30, "price": 850, "type": "Max Series"},
+        {"brand": "Alphard Sound Technology", "model": "Max-15D4", "size": "15", "rms": 3000, "fs": 28, "xmax": 32, "price": 1000, "type": "Max Series"}
 ]
