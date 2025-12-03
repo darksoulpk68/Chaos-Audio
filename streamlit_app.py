@@ -3,7 +3,7 @@ import google.generativeai as genai
 
 # --- CONFIGURATION ---
 # ⚠️ PASTE YOUR API KEY HERE ⚠️
-API_KEY = "AIzaSyBiGTfCpFElh2vsobukmqKZeNiGtQerDD4"
+API_KEY = ""
 
 # --- MOCK DATABASE (The "Gear Lab") ---
 # You can add hundreds of subs here.
