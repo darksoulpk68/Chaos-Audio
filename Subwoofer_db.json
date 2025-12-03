@@ -1,0 +1,50 @@
+[
+  {
+    "brand": "Sundown Audio",
+    "model": "Zv6 15",
+    "size": "15",
+    "rms": 2500,
+    "type": "SPL/Low-End Monster",
+    "price": 1100
+  },
+  {
+    "brand": "Sundown Audio",
+    "model": "Xv3 12",
+    "size": "12",
+    "rms": 2000,
+    "type": "Daily Banger",
+    "price": 800
+  },
+  {
+    "brand": "DC Audio",
+    "model": "Level 6 18",
+    "size": "18",
+    "rms": 4500,
+    "type": "Competition Only",
+    "price": 2200
+  },
+  {
+    "brand": "Digital Designs",
+    "model": "9915",
+    "size": "15",
+    "rms": 3500,
+    "type": "Precision SPL",
+    "price": 1800
+  },
+  {
+    "brand": "Fi Car Audio",
+    "model": "Neo 3.5",
+    "size": "15",
+    "rms": 2500,
+    "type": "Neo Motor Efficient",
+    "price": 1400
+  },
+  {
+    "brand": "Kicker",
+    "model": "SoloX L7X",
+    "size": "12",
+    "rms": 2000,
+    "type": "Square Cone/Space Saver",
+    "price": 1000
+  }
+]

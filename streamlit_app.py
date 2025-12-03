@@ -1,30 +1,36 @@
 import streamlit as st
 import google.generativeai as genai
+import json
 
 # --- CONFIGURATION ---
 API_KEY = st.secrets["api"]
 
-# --- MOCK DATABASE (The "Gear Lab") ---
-# You can add hundreds of subs here.
-SUBWOOFER_DB = [
-    {"brand": "Sundown Audio", "model": "Zv6 15", "size": "15", "rms": 2500, "type": "SPL/Low-End Monster", "price": 1100},
-    {"brand": "Sundown Audio", "model": "Xv3 12", "size": "12", "rms": 2000, "type": "Daily Banger", "price": 800},
-    {"brand": "DC Audio", "model": "Level 6 18", "size": "18", "rms": 4500, "type": "Competition Only", "price": 2200},
-    {"brand": "Digital Designs", "model": "9915", "size": "15", "rms": 3500, "type": "Precision SPL", "price": 1800},
-    {"brand": "Fi Car Audio", "model": "Neo 3.5", "size": "15", "rms": 2500, "type": "Neo Motor Efficient", "price": 1400},
-    {"brand": "Kicker", "model": "SoloX L7X", "size": "12", "rms": 2000, "type": "Square Cone/Space Saver", "price": 1000},
-]
+# --- LOAD DATABASES ---
+try:
+    with open("Subwoofer_db.json", "r") as f:
+        SUBWOOFER_DB = json.load(f)
+except Exception as e:
+    st.error(f"Error loading subwoofer database: {e}")
+    SUBWOOFER_DB = []
+
+try:
+    with open("models.json", "r") as f:
+        MODEL_LIST = json.load(f)
+except Exception as e:
+    st.error(f"Error loading model list: {e}")
+    MODEL_LIST = []
 
 # --- ROBUST MODEL FINDER ---
 def get_working_model():
-    model_list = ['models/gemini-2.0-flash-live', 'models/gemini-2.5-flash-live']
-    for model_name in model_list:
+    for model_name in MODEL_LIST:
         try:
             model = genai.GenerativeModel(model_name)
             model.generate_content("test")
             return model
-        except:
+        except Exception as e:
+            st.warning(f"Model {model_name} failed: {e}")
             continue
+    st.error("No working model found.")
     return None
 
 # Configure API
@@ -57,7 +63,7 @@ st.set_page_config(page_title="AlphaAudio V3", page_icon="☢️", layout="wide"
 st.title("☢️ AlphaAudio: DeepMind Logic Engine")
 
 # TABS
-tab_sim, tab_gear = st.tabs(["🎛️ Design Studio (Simulation)", "🧪 Gear Lab (Database)"])
+tab_sim, tab_gear, tab_compare = st.tabs(["🎛️ Design Studio (Simulation)", "🧪 Gear Lab (Database)", "⚔️ Build Comparison"])
 
 # ==============================================================================
 # TAB 1: DESIGN STUDIO (The Iterative Simulator)
@@ -68,8 +74,10 @@ with tab_sim:
         st.header("1. Project Constraints")
         car_model = st.text_input("Vehicle Model", "2010 Honda Civic")
         subwoofer = st.text_input("Subwoofer(s)", "2x Sundown Zv6 15")
-        power = st.text_input("Power (RMS)", "5000W")
+        power = st.text_input("Amplifier(s) power (RMS, total)", "5000W")
+        Fs = st.slider("Desired Frequency (Hz)", 15, 75, 32)
         tolerance = st.select_slider("Destruction Tolerance", options=["Zero", "Rattles", "Flex", "Breakage", "TERMINATION"])
+        comments = st.text_area("Describe your setup or your goal", "e.g. 'I have 80Ah lithium' or 'I want a windy setup'")
         
         st.header("2. Control")
         if st.button("🚀 RUN FULL SIMULATION", type="primary"):
@@ -77,7 +85,7 @@ with tab_sim:
             if model:
                 # 1. ARCHITECT
                 with st.spinner("Architect is working..."):
-                    proj_data = f"Car: {car_model}, Sub: {subwoofer}, Power: {power}, Tolerance: {tolerance}"
+                    proj_data = f"Car: {car_model}, Sub: {subwoofer}, Power: {power}, Fs = {Fs}, Tolerance: {tolerance}, comments: {comments}"
                     res1 = model.generate_content(f"{ARCHITECT_PROMPT}\nDATA: {proj_data}")
                     st.session_state['architect_out'] = res1.text
                 
@@ -140,14 +148,71 @@ with tab_sim:
                     st.session_state['thermal_out'] = new_res.text
                     st.rerun()
         
-        # --- CORE VERDICT ---
-        st.divider()
-        st.header("🏁 Core Verdict")
-        if st.button("Synthesize Final Plan"):
-            with st.spinner("Core is thinking..."):
-                final_data = f"ARCH: {st.session_state['architect_out']}\nSTRUCT: {st.session_state['structural_out']}\nTHERM: {st.session_state['thermal_out']}"
-                core_res = model.generate_content(f"{CORE_PROMPT}\nDATA: {final_data}")
-                st.success(core_res.text)
+# --- CORE VERDICT ---
+st.divider()
+st.header("🏁 Core Verdict")
+if st.button("Synthesize Final Plan"):
+    with st.spinner("Core is thinking..."):
+        final_data = f"ARCH: {st.session_state['architect_out']}\nSTRUCT: {st.session_state['structural_out']}\nTHERM: {st.session_state['thermal_out']}"
+        core_res = model.generate_content(f"{CORE_PROMPT}\nDATA: {final_data}")
+        st.session_state['core_out'] = core_res.text  # <-- store in session_state
+        st.success(st.session_state['core_out'])
+
+
+       # --- SHAREABLE SUMMARY ---
+st.divider()
+st.header("📤 Share This Build")
+
+build_summary = f"""
+===============================
+🚗 VEHICLE BUILD SUMMARY
+===============================
+
+Vehicle: {car_model}
+Subwoofer(s): {subwoofer}
+Amplifier Power: {power}
+Desired Frequency (Fs): {Fs} Hz
+Tolerance: {tolerance}
+Comments: {comments}
+
+-------------------------------
+📐 Architect Output
+-------------------------------
+{st.session_state['architect_out']}
+
+-------------------------------
+🔨 Structural Output
+-------------------------------
+{st.session_state['structural_out']}
+
+-------------------------------
+🔥 Thermal Output
+-------------------------------
+{st.session_state['thermal_out']}
+
+-------------------------------
+🏁 Core Verdict
+-------------------------------
+{st.session_state['core_out']}
+"""
+
+st.text_area("Build Summary (copy & share)", build_summary, height=400)
+
+# --- PDF EXPORT ---
+from fpdf import FPDF
+if st.button("📄 Export as PDF"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    for line in build_summary.splitlines():
+        pdf.multi_cell(0, 10, line)
+    pdf_output = pdf.output(dest="S").encode("latin-1")
+    st.download_button(
+        label="Download Build Summary PDF",
+        data=pdf_output,
+        file_name="AlphaAudio_Build_Summary.pdf",
+        mime="application/pdf"
+    )
 
 # ==============================================================================
 # TAB 2: GEAR LAB (Database & Recommender)
@@ -178,3 +243,87 @@ with tab_gear:
         st.subheader("📦 Component Database")
         # Display the Raw Database nicely
         st.dataframe(SUBWOOFER_DB)
+
+# ==============================================================================
+# TAB 3: BUILD COMPARISON (Multi-Setup Evaluator)
+# ==============================================================================
+
+with tab_compare:
+    st.header("⚔️ Compare Multiple Builds")
+    st.write("Enter up to 5 different setups and run full comparisons.")
+
+    # --- INPUTS ---
+    num_builds = st.slider("Number of builds to compare", 2, 5, 2)
+
+    builds = []
+    for i in range(num_builds):
+        st.subheader(f"Build {i+1}")
+        car_model = st.text_input(f"Vehicle Model {i+1}", f"Car {i+1}")
+        subwoofer = st.text_input(f"Subwoofer(s) {i+1}", f"Sub {i+1}")
+        power = st.text_input(f"Power (RMS) {i+1}", f"{1000*(i+1)}W")
+        tolerance = st.select_slider(
+            f"Destruction Tolerance {i+1}",
+            options=["Zero", "Rattles", "Flex", "Breakage", "TERMINATION"]
+        )
+        builds.append({
+            "car_model": car_model,
+            "subwoofer": subwoofer,
+            "power": power,
+            "tolerance": tolerance
+        })
+
+    # --- RUN COMPARISON ---
+    if st.button("🚀 Launch Comparison", type="primary"):
+        model = get_working_model()
+        if model:
+            results = []
+            for idx, build in enumerate(builds):
+                proj_data = f"Car: {build['car_model']}, Sub: {build['subwoofer']}, Power: {build['power']}, Tolerance: {build['tolerance']}"
+
+                with st.spinner(f"Running Architect for Build {idx+1}..."):
+                    res1 = model.generate_content(f"{ARCHITECT_PROMPT}\nDATA: {proj_data}")
+                    arch_out = res1.text
+
+                with st.spinner(f"Running Structural for Build {idx+1}..."):
+                    res2 = model.generate_content(f"{STRUCTURAL_PROMPT}\nDATA: {proj_data}\nARCHITECT: {arch_out}")
+                    struct_out = res2.text
+
+                with st.spinner(f"Running Thermal for Build {idx+1}..."):
+                    res3 = model.generate_content(f"{THERMAL_PROMPT}\nDATA: {proj_data}\nARCHITECT: {arch_out}")
+                    therm_out = res3.text
+
+                with st.spinner(f"Synthesizing Core Verdict for Build {idx+1}..."):
+                    final_data = f"ARCH: {arch_out}\nSTRUCT: {struct_out}\nTHERM: {therm_out}"
+                    core_res = model.generate_content(f"{CORE_PROMPT}\nDATA: {final_data}")
+                    core_out = core_res.text
+
+                results.append({
+                    "build": build,
+                    "architect": arch_out,
+                    "structural": struct_out,
+                    "thermal": therm_out,
+                    "core": core_out
+                })
+
+            # --- DISPLAY RESULTS ---
+            st.divider()
+            st.subheader("📊 Individual Build Results")
+            for idx, res in enumerate(results):
+                st.markdown(f"### Build {idx+1}: {res['build']['car_model']} / {res['build']['subwoofer']}")
+                st.info(res['architect'])
+                st.warning(res['structural'])
+                st.error(res['thermal'])
+                st.success(res['core'])
+
+            # --- COMPARISON SYNTHESIS ---
+            st.divider()
+            st.header("🏁 Comparative Verdict")
+            comparison_data = "\n\n".join([
+                f"Build {i+1}: \nARCH: {r['architect']}\nSTRUCT: {r['structural']}\nTHERM: {r['thermal']}\nCORE: {r['core']}"
+                for i, r in enumerate(results)
+            ])
+            with st.spinner("Comparing builds..."):
+                compare_res = model.generate_content(
+                    f"You are the COMPARISON ENGINE.\nTask: Compare all builds side-by-side.\nDATA:\n{comparison_data}"
+                )
+                st.success(compare_res.text)
