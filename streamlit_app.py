@@ -7,7 +7,7 @@ API_KEY = st.secrets["api"]
 
 # --- LOAD DATABASES ---
 try:
-    with open("subwoofer_db.json", "r") as f:
+    with open("Subwoofer_db.json", "r") as f:
         SUBWOOFER_DB = json.load(f)
 except Exception as e:
     st.error(f"Error loading subwoofer database: {e}")
