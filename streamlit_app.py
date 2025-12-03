@@ -186,3 +186,88 @@ with tab_gear:
         st.subheader("📦 Component Database")
         # Display the Raw Database nicely
         st.dataframe(SUBWOOFER_DB)
+
+# ==============================================================================
+# TAB 3: BUILD COMPARISON (Multi-Setup Evaluator)
+# ==============================================================================
+tab_compare = st.tabs(["⚔️ Build Comparison"])[0]
+
+with tab_compare:
+    st.header("⚔️ Compare Multiple Builds")
+    st.write("Enter up to 5 different setups and run full comparisons.")
+
+    # --- INPUTS ---
+    num_builds = st.slider("Number of builds to compare", 2, 5, 2)
+
+    builds = []
+    for i in range(num_builds):
+        st.subheader(f"Build {i+1}")
+        car_model = st.text_input(f"Vehicle Model {i+1}", f"Car {i+1}")
+        subwoofer = st.text_input(f"Subwoofer(s) {i+1}", f"Sub {i+1}")
+        power = st.text_input(f"Power (RMS) {i+1}", f"{1000*(i+1)}W")
+        tolerance = st.select_slider(
+            f"Destruction Tolerance {i+1}",
+            options=["Zero", "Rattles", "Flex", "Breakage", "TERMINATION"]
+        )
+        builds.append({
+            "car_model": car_model,
+            "subwoofer": subwoofer,
+            "power": power,
+            "tolerance": tolerance
+        })
+
+    # --- RUN COMPARISON ---
+    if st.button("🚀 Launch Comparison", type="primary"):
+        model = get_working_model()
+        if model:
+            results = []
+            for idx, build in enumerate(builds):
+                proj_data = f"Car: {build['car_model']}, Sub: {build['subwoofer']}, Power: {build['power']}, Tolerance: {build['tolerance']}"
+
+                with st.spinner(f"Running Architect for Build {idx+1}..."):
+                    res1 = model.generate_content(f"{ARCHITECT_PROMPT}\nDATA: {proj_data}")
+                    arch_out = res1.text
+
+                with st.spinner(f"Running Structural for Build {idx+1}..."):
+                    res2 = model.generate_content(f"{STRUCTURAL_PROMPT}\nDATA: {proj_data}\nARCHITECT: {arch_out}")
+                    struct_out = res2.text
+
+                with st.spinner(f"Running Thermal for Build {idx+1}..."):
+                    res3 = model.generate_content(f"{THERMAL_PROMPT}\nDATA: {proj_data}\nARCHITECT: {arch_out}")
+                    therm_out = res3.text
+
+                with st.spinner(f"Synthesizing Core Verdict for Build {idx+1}..."):
+                    final_data = f"ARCH: {arch_out}\nSTRUCT: {struct_out}\nTHERM: {therm_out}"
+                    core_res = model.generate_content(f"{CORE_PROMPT}\nDATA: {final_data}")
+                    core_out = core_res.text
+
+                results.append({
+                    "build": build,
+                    "architect": arch_out,
+                    "structural": struct_out,
+                    "thermal": therm_out,
+                    "core": core_out
+                })
+
+            # --- DISPLAY RESULTS ---
+            st.divider()
+            st.subheader("📊 Individual Build Results")
+            for idx, res in enumerate(results):
+                st.markdown(f"### Build {idx+1}: {res['build']['car_model']} / {res['build']['subwoofer']}")
+                st.info(res['architect'])
+                st.warning(res['structural'])
+                st.error(res['thermal'])
+                st.success(res['core'])
+
+            # --- COMPARISON SYNTHESIS ---
+            st.divider()
+            st.header("🏁 Comparative Verdict")
+            comparison_data = "\n\n".join([
+                f"Build {i+1}: \nARCH: {r['architect']}\nSTRUCT: {r['structural']}\nTHERM: {r['thermal']}\nCORE: {r['core']}"
+                for i, r in enumerate(results)
+            ])
+            with st.spinner("Comparing builds..."):
+                compare_res = model.generate_content(
+                    f"You are the COMPARISON ENGINE.\nTask: Compare all builds side-by-side.\nDATA:\n{comparison_data}"
+                )
+                st.success(compare_res.text)
