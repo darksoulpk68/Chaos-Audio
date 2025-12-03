@@ -82,11 +82,33 @@ with st.sidebar:
     st.markdown("### DeepMind Logic Engine")
     st.markdown("---")
     
-    # Navigation Menu
-    page = st.radio("Select Tool", ["🎛️ Design Studio", "🧪 Gear Lab", "⚔️ Build Comparison"])
+    # Initialize 'page' in session state if it doesn't exist
+    if "page" not in st.session_state:
+        st.session_state["page"] = "🎛️ Design Studio"
+
+    # Navigation Buttons (Full Width for Style)
+    st.markdown("#### Menu")
+    if st.button("🎛️ Design Studio", use_container_width=True):
+        st.session_state["page"] = "🎛️ Design Studio"
+        
+    if st.button("🧪 Gear Lab", use_container_width=True):
+        st.session_state["page"] = "🧪 Gear Lab"
+        
+    if st.button("⚔️ Build Comparison", use_container_width=True):
+        st.session_state["page"] = "⚔️ Build Comparison"
     
+    # Pass the session state to the variable the rest of the app expects
+    page = st.session_state["page"]
+
     st.markdown("---")
-    st.info("💡 **Tip:** Use 'Design Studio' for deep simulation of a single setup.")
+    
+    # Dynamic Tip based on current page
+    if page == "🎛️ Design Studio":
+        st.info("💡 **Tip:** Use this mode for deep, single-vehicle simulation.")
+    elif page == "🧪 Gear Lab":
+        st.info("💡 **Tip:** Use the AI Recommender to find subs that fit your music style.")
+    elif page == "⚔️ Build Comparison":
+        st.info("💡 **Tip:** Great for deciding between two different subwoofer brands.")
 
 # ==============================================================================
 # PAGE 1: DESIGN STUDIO (The Simulator)
