@@ -148,70 +148,71 @@ with tab_sim:
                     st.session_state['thermal_out'] = new_res.text
                     st.rerun()
         
-        # --- CORE VERDICT ---
-        st.divider()
-        st.header("🏁 Core Verdict")
-        if st.button("Synthesize Final Plan"):
-            with st.spinner("Core is thinking..."):
-                final_data = f"ARCH: {st.session_state['architect_out']}\nSTRUCT: {st.session_state['structural_out']}\nTHERM: {st.session_state['thermal_out']}"
-                core_res = model.generate_content(f"{CORE_PROMPT}\nDATA: {final_data}")
-                st.success(core_res.text)
+# --- CORE VERDICT ---
+st.divider()
+st.header("🏁 Core Verdict")
+if st.button("Synthesize Final Plan"):
+    with st.spinner("Core is thinking..."):
+        final_data = f"ARCH: {st.session_state['architect_out']}\nSTRUCT: {st.session_state['structural_out']}\nTHERM: {st.session_state['thermal_out']}"
+        core_res = model.generate_content(f"{CORE_PROMPT}\nDATA: {final_data}")
+        st.session_state['core_out'] = core_res.text  # <-- store in session_state
+        st.success(st.session_state['core_out'])
 
-        # --- SHAREABLE SUMMARY ---
-        st.divider()
-        st.header("📤 Share This Build")
 
-        build_summary = f"""
-        ================================
-        🚗 VEHICLE BUILD SUMMARY
-        ================================
+       # --- SHAREABLE SUMMARY ---
+st.divider()
+st.header("📤 Share This Build")
 
-        Vehicle: {car_model}
-        Subwoofer(s): {subwoofer}
-        Amplifier Power: {power}
-        Desired Frequency (Fs): {Fs} Hz
-        Tolerance: {tolerance}
-        Comments: {comments}
+build_summary = f"""
+===============================
+🚗 VEHICLE BUILD SUMMARY
+===============================
 
-        -------------------------------
-        📐 Architect Output
-        -------------------------------
-        {st.session_state['architect_out']}
+Vehicle: {car_model}
+Subwoofer(s): {subwoofer}
+Amplifier Power: {power}
+Desired Frequency (Fs): {Fs} Hz
+Tolerance: {tolerance}
+Comments: {comments}
 
-        -------------------------------
-        🔨 Structural Output
-        -------------------------------
-        {st.session_state['structural_out']}
+-------------------------------
+📐 Architect Output
+-------------------------------
+{st.session_state['architect_out']}
 
-        -------------------------------
-        🔥 Thermal Output
-        -------------------------------
-        {st.session_state['thermal_out']}
+-------------------------------
+🔨 Structural Output
+-------------------------------
+{st.session_state['structural_out']}
 
-        -------------------------------
-        🏁 Core Verdict
-        -------------------------------
-        {core_res.text}
-        """
+-------------------------------
+🔥 Thermal Output
+-------------------------------
+{st.session_state['thermal_out']}
 
-        st.text_area("Build Summary (copy & share)", build_summary, height=400)
+-------------------------------
+🏁 Core Verdict
+-------------------------------
+{st.session_state['core_out']}
+"""
 
-        # --- PDF EXPORT ---
-        from fpdf import FPDF
-        if st.button("📄 Export as PDF"):
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_font("Arial", size=12)
-            for line in build_summary.splitlines():
-                pdf.multi_cell(0, 10, line)
-            pdf_output = pdf.output(dest="S").encode("latin-1")
-            st.download_button(
-                label="Download Build Summary PDF",
-                data=pdf_output,
-                file_name="AlphaAudio_Build_Summary.pdf",
-                mime="application/pdf"
-            )
+st.text_area("Build Summary (copy & share)", build_summary, height=400)
 
+# --- PDF EXPORT ---
+from fpdf import FPDF
+if st.button("📄 Export as PDF"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    for line in build_summary.splitlines():
+        pdf.multi_cell(0, 10, line)
+    pdf_output = pdf.output(dest="S").encode("latin-1")
+    st.download_button(
+        label="Download Build Summary PDF",
+        data=pdf_output,
+        file_name="AlphaAudio_Build_Summary.pdf",
+        mime="application/pdf"
+    )
 
 # ==============================================================================
 # TAB 2: GEAR LAB (Database & Recommender)
