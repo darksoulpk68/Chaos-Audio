@@ -74,8 +74,10 @@ with tab_sim:
         st.header("1. Project Constraints")
         car_model = st.text_input("Vehicle Model", "2010 Honda Civic")
         subwoofer = st.text_input("Subwoofer(s)", "2x Sundown Zv6 15")
-        power = st.text_input("Power (RMS)", "5000W")
+        power = st.text_input("Amplifier(s) power (RMS, total)", "5000W")
+        Fs = st.slider("Desired Frequency (Hz)", 15, 75, 32)
         tolerance = st.select_slider("Destruction Tolerance", options=["Zero", "Rattles", "Flex", "Breakage", "TERMINATION"])
+        comments = st.text_area("Describe your setup or your goal", "e.g. 'I have 80Ah lithium' or 'I want a windy setup'")
         
         st.header("2. Control")
         if st.button("🚀 RUN FULL SIMULATION", type="primary"):
@@ -83,7 +85,7 @@ with tab_sim:
             if model:
                 # 1. ARCHITECT
                 with st.spinner("Architect is working..."):
-                    proj_data = f"Car: {car_model}, Sub: {subwoofer}, Power: {power}, Tolerance: {tolerance}"
+                    proj_data = f"Car: {car_model}, Sub: {subwoofer}, Power: {power}, Fs = {Fs}, Tolerance: {tolerance}, comments: {comments}"
                     res1 = model.generate_content(f"{ARCHITECT_PROMPT}\nDATA: {proj_data}")
                     st.session_state['architect_out'] = res1.text
                 
