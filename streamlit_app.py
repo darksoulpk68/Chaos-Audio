@@ -2,7 +2,6 @@ import streamlit as st
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-# ⚠️ PASTE YOUR API KEY HERE ⚠️
 API_KEY = st.secrets["api"]
 
 # --- MOCK DATABASE (The "Gear Lab") ---
