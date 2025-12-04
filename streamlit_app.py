@@ -31,9 +31,24 @@ def load_data():
         # Fallback list if file missing
         model_list = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro"]
     
-    return sub_db, model_list
+    # Load editable prompts from external file so users can change them per session
+    try:
+        with open("design_prompts.json", "r") as f:
+            prompts = json.load(f)
+    except:
+        # Default prompts if external file missing or invalid
+        prompts = {
+            "ARCHITECT_PROMPT": "You are the AUDIO ARCHITECT. Design enclosure based on inputs. Output specs list.",
+            "STRUCTURAL_PROMPT": "You are the STRUCTURAL ANALYST. Predict damage based on power/tolerance.",
+            "THERMAL_PROMPT": "You are the THERMAL PHYSICIST. Predict coil meltdown and voltage issues.",
+            "CORE_PROMPT": "You are ALPHAAUDIO CORE. Synthesize reports into a GO/NO-GO verdict.",
+            "RECOMMENDER_PROMPT": "You are the GEAR LAB ASSISTANT.\nTask: Pick the BEST subwoofers from the provided DATABASE based on user needs.\nInput: User Preferences + Database List.\nOutput: The top 3 choices, explaining WHY they fit the goal.",
+            "COMPARISON_PROMPT": "You are the COMPARISON ENGINE. Compare these builds side-by-side and declare a winner for the specific goal."
+        }
 
-SUBWOOFER_DB, MODEL_LIST = load_data()
+    return sub_db, model_list, prompts
+
+SUBWOOFER_DB, MODEL_LIST, PROMPTS = load_data()
 
 # --- HELPER FUNCTIONS ---
 def get_working_model():
@@ -62,17 +77,12 @@ if 'thermal_out' not in st.session_state: st.session_state['thermal_out'] = ""
 if 'core_out' not in st.session_state: st.session_state['core_out'] = ""
 
 # --- PROMPTS ---
-ARCHITECT_PROMPT = "You are the AUDIO ARCHITECT. Design enclosure based on inputs. Output specs list."
-STRUCTURAL_PROMPT = "You are the STRUCTURAL ANALYST. Predict damage based on power/tolerance."
-THERMAL_PROMPT = "You are the THERMAL PHYSICIST. Predict coil meltdown and voltage issues."
-CORE_PROMPT = "You are ALPHAAUDIO CORE. Synthesize reports into a GO/NO-GO verdict."
-RECOMMENDER_PROMPT = """
-You are the GEAR LAB ASSISTANT.
-Task: Pick the BEST subwoofers from the provided DATABASE based on user needs.
-Input: User Preferences + Database List.
-Output: The top 3 choices, explaining WHY they fit the goal.
-"""
-COMPARISON_PROMPT = "You are the COMPARISON ENGINE. Compare these builds side-by-side and declare a winner for the specific goal."
+ARCHITECT_PROMPT = PROMPTS.get("ARCHITECT_PROMPT")
+STRUCTURAL_PROMPT = PROMPTS.get("STRUCTURAL_PROMPT")
+THERMAL_PROMPT = PROMPTS.get("THERMAL_PROMPT")
+CORE_PROMPT = PROMPTS.get("CORE_PROMPT")
+RECOMMENDER_PROMPT = PROMPTS.get("RECOMMENDER_PROMPT")
+COMPARISON_PROMPT = PROMPTS.get("COMPARISON_PROMPT")
 
 # ==============================================================================
 # MAIN NAVIGATION (SIDEBAR)
@@ -81,6 +91,26 @@ with st.sidebar:
     st.title("☢️ AlphaAudio")
     st.markdown("### DeepMind Logic Engine")
     st.markdown("---")
+
+    # Section pour ajouter du matériel de prompt additionnel
+    st.markdown("#### Matériel de prompt additionnel")
+    add_prompt = st.text_area("Ajoutez des précisions audio (optionnel)", "", help="Ex: précisez le style musical, la configuration, etc. (audio uniquement)")
+
+    # Scan simple pour détecter du contenu non-audio ou potentiellement malicieux
+    def is_audio_relevant(text):
+        # Liste de mots-clés audio
+        audio_keywords = ["audio", "subwoofer", "enclosure", "bass", "speaker", "amplifier", "rms", "frequency", "hertz", "db", "sound", "music", "car", "vehicle", "build", "coil", "watt", "box", "tuning", "SPL", "hairtrick", "woofer", "driver", "amp", "system", "setup", "power"]
+        # Liste de mots-clés suspects
+        bad_keywords = ["jailbreak", "ignore", "disregard", "malicious", "hack", "exploit", "prompt injection", "system", "admin", "password", "shutdown", "delete", "format", "root", "sudo", "os", "linux", "windows", "mac", "network", "internet", "web", "http", "https", "token", "api key", "keygen", "bypass"]
+        text_l = text.lower()
+        # Si un mot-clé audio est présent et aucun mot-clé suspect, c'est OK
+        if any(k in text_l for k in audio_keywords) and not any(b in text_l for b in bad_keywords):
+            return True
+        return False
+
+    if add_prompt and not is_audio_relevant(add_prompt):
+        st.warning("⛔️ Le texte ajouté n'est pas reconnu comme pertinent pour l'audio. Il sera ignoré.")
+        add_prompt = ""
     
     # Initialize 'page' in session state if it doesn't exist
     if "page" not in st.session_state:
@@ -134,7 +164,13 @@ if page == "🎛️ Design Studio":
                 # 1. ARCHITECT
                 with st.spinner("📐 Architect is calculating box volume..."):
                     proj_data = f"Car: {car_model}, Sub: {subwoofer}, Power: {power}, Fs: {Fs}, Tolerance: {tolerance}, Notes: {comments}"
-                    res1 = model.generate_content(f"{ARCHITECT_PROMPT}\nDATA: {proj_data}")
+                    # Ajout du matériel de prompt additionnel si pertinent
+                    extra = add_prompt.strip()
+                    if extra:
+                        full_prompt = f"{ARCHITECT_PROMPT}\nDATA: {proj_data}\nUSER ADDITION: {extra}"
+                    else:
+                        full_prompt = f"{ARCHITECT_PROMPT}\nDATA: {proj_data}"
+                    res1 = model.generate_content(full_prompt)
                     st.session_state['architect_out'] = res1.text
                 
                 # 2. STRUCTURAL
