@@ -90,6 +90,7 @@ if 'architect_out' not in st.session_state: st.session_state['architect_out'] = 
 if 'structural_out' not in st.session_state: st.session_state['structural_out'] = ""
 if 'thermal_out' not in st.session_state: st.session_state['thermal_out'] = ""
 if 'core_out' not in st.session_state: st.session_state['core_out'] = ""
+if 'page' not in st.session_state: st.session_state['page'] = "welcome"
 
 # --- PROMPTS ---
 ARCHITECT_PROMPT = PROMPTS.get("ARCHITECT_PROMPT")
@@ -112,12 +113,15 @@ with st.sidebar:
     st.markdown("#### Menu")
     if st.button("🎛️ Design Studio", use_container_width=True):
         st.session_state["page"] = "🎛️ Design Studio"
+        st.rerun() # Rerun to reflect page change immediately
         
     if st.button("🧪 Gear Lab", use_container_width=True):
         st.session_state["page"] = "🧪 Gear Lab"
+        st.rerun()
         
     if st.button("⚔️ Build Comparison", use_container_width=True):
         st.session_state["page"] = "⚔️ Build Comparison"
+        st.rerun()
     
     # Optional: allow user to add a short extra prompt used by the simulator
     st.markdown("---")
@@ -128,23 +132,65 @@ with st.sidebar:
         st.session_state['add_prompt'] = ""
     add_prompt = st.session_state.get('add_prompt', "")
 
-    # Pass the session state to the variable the rest of the app expects
-    page = st.session_state["page"]
-
     st.markdown("---")
     
     # Dynamic Tip based on current page
+    page = st.session_state.get("page", "welcome") # Get current page, default to welcome
     if page == "🎛️ Design Studio":
         st.info("💡 **Tip:** Use this mode for deep, single-vehicle simulation.")
     elif page == "🧪 Gear Lab":
         st.info("💡 **Tip:** Use the AI Recommender to find subs that fit your music style.")
     elif page == "⚔️ Build Comparison":
         st.info("💡 **Tip:** Great for deciding between two different subwoofer brands.")
+    elif page == "welcome":
+        st.info("💡 **Tip:** Click a menu item to get started!")
+
+
+# Pass the session state to the variable the rest of the app expects
+page = st.session_state.get("page", "welcome")
+
+# ==============================================================================
+# WELCOME PAGE / TUTORIAL
+# ==============================================================================
+if page == "welcome":
+    st.title("Welcome to AlphaAudio ☢️")
+    st.markdown("Your personal AI-powered car audio system simulator and designer.")
+    st.markdown("---")
+
+    st.header("How it Works")
+    st.markdown("""
+    AlphaAudio uses a suite of specialized AI agents to simulate and design your car audio system. You provide the constraints, and the AI does the heavy lifting, providing you with detailed analysis and recommendations.
+    """)
+
+    st.header("How to Use AlphaAudio")
+    st.markdown("""
+    Use the menu in the sidebar to navigate between the different modes:
+
+    ### 🎛️ Design Studio
+    This is the core of AlphaAudio. Here you can simulate a complete car audio build.
+    1.  **Enter Your Project Constraints**: Specify your vehicle, subwoofers, amplifier power, and your goals.
+    2.  **Initiate Simulation**: The AI agents (Architect, Structural, and Thermal) will analyze your setup.
+    3.  **Review and Refine**: Check the results from each agent. You can provide feedback and rerun the simulation for each part to refine the design.
+    4.  **Synthesize Final Plan**: Once you are happy with the design, the CORE agent will provide a final verdict and a summary of the build.
+    5.  **Export**: You can export the final build plan as a text summary or a PDF report.
+
+    ### 🧪 Gear Lab
+    Here you can find the right gear for your build.
+    1.  **AI Recommender**: Get AI-powered recommendations for subwoofers, amplifiers, and more based on your budget and goals.
+    2.  **Database**: Browse the curated databases of audio equipment.
+
+    ### ⚔️ Build Comparison
+    Compare different builds side-by-side to see which one comes out on top for your specific goals.
+    1.  **Enter Builds**: Input the details for 2 to 4 different builds.
+    2.  **FIGHT!**: The AI will simulate a "battle" between the builds and declare a winner.
+
+    **To get started, select a mode from the sidebar.**
+    """)
 
 # ==============================================================================
 # PAGE 1: DESIGN STUDIO (The Simulator)
 # ==============================================================================
-if page == "🎛️ Design Studio":
+elif page == "🎛️ Design Studio":
     st.header("🎛️ Design Studio: Iterative Simulation")
     
     # --- INPUT SECTION (Now on Main Page) ---
