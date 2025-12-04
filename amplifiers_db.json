@@ -1,0 +1,46 @@
+[
+  {
+    "brand": "Alpine",
+    "model": "PDR-M65",
+    "power_rms_per_ch": 160,
+    "bridged_power": 500,
+    "impedance": "4 ohm",
+    "class": "D",
+    "channels": 4,
+    "price": 499,
+    "notes": "Compact, high efficiency, good for sub + mids"
+  },
+  {
+    "brand": "Rockford Fosgate",
+    "model": "T1500-1bdCP",
+    "power_rms_per_ch": 1500,
+    "bridged_power": null,
+    "impedance": "1 ohm",
+    "class": "D",
+    "channels": 1,
+    "price": 1299,
+    "notes": "Mono block for high-SPL subwoofer setups"
+  },
+  {
+    "brand": "JL Audio",
+    "model": "HD950/5",
+    "power_rms_per_ch": 75,
+    "bridged_power": 300,
+    "impedance": "4 ohm",
+    "class": "AB",
+    "channels": 5,
+    "price": 799,
+    "notes": "High quality AB, DSP-ready, for full system builds"
+  },
+  {
+    "brand": "Alphard",
+    "model": "A2-1800",
+    "power_rms_per_ch": 1800,
+    "bridged_power": null,
+    "impedance": "1 ohm",
+    "class": "D",
+    "channels": 1,
+    "price": 899,
+    "notes": "Competition mono for extreme SPL"
+  }
+]

@@ -46,9 +46,16 @@ def load_data():
             "COMPARISON_PROMPT": "You are the COMPARISON ENGINE. Compare these builds side-by-side and declare a winner for the specific goal."
         }
 
-    return sub_db, model_list, prompts
+    # Load amplifiers DB (optional)
+    try:
+        with open("amplifiers_db.json", "r") as f:
+            amplifier_db = json.load(f)
+    except:
+        amplifier_db = []
 
-SUBWOOFER_DB, MODEL_LIST, PROMPTS = load_data()
+    return sub_db, model_list, prompts, amplifier_db
+
+SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB = load_data()
 
 # --- HELPER FUNCTIONS ---
 def get_working_model():
@@ -170,7 +177,7 @@ if page == "🎛️ Design Studio":
         with c2:
             Fs = st.slider("Desired Frequency (Hz)", 15, 75, 32)
             tolerance = st.select_slider("Destruction Tolerance", options=["Zero", "Rattles", "Flex", "Breakage", "TERMINATION"])
-            comments = st.text_area("Specific Goals / Electrical Mods", "e.g. 'Lithium bank, chasing hairtricks'")
+            comments = st.text_area("Describe your goals or your actual build, giving as much information as possible", "e.g. 'Lithium bank, chasing hairtricks'")
 
         if st.button("🚀 INITIATE SIMULATION", type="primary", use_container_width=True):
             model = get_working_model()
@@ -342,7 +349,29 @@ elif page == "🧪 Gear Lab":
     # Onglet Amplifiers
     with tabs[1]:
         st.subheader("Amplifiers Shopping & Database")
-        st.info("À compléter : Ajoutez ici la base de données des amplis et les outils de recommandation.")
+        col_l, col_r = st.columns([1, 2])
+        with col_l:
+            st.markdown("### AI Amplifier Recommender")
+            with st.form("amp_recommender_form"):
+                amp_budget = st.text_input("Budget ($)", "1000")
+                desired_rms = st.text_input("Desired RMS per channel (e.g. 500)", "500")
+                channels = st.selectbox("Channel Count", [1, 2, 4, 5, 6, 8], index=2)
+                amp_class = st.selectbox("Preferred Class", ["Any", "D", "AB"], index=0)
+                amp_notes = st.text_area("Installation Constraints / Notes (optional)", "")
+                amp_submit = st.form_submit_button("🔎 Recommend Amplifiers")
+
+                if amp_submit:
+                    model = get_working_model()
+                    if model:
+                        with st.spinner("Analyzing amplifier database..."):
+                            reqs = f"Budget: {amp_budget}, DesiredRMS: {desired_rms}, Channels: {channels}, Class: {amp_class}, Notes: {amp_notes}"
+                            amp_db_string = str(AMPLIFIER_DB)
+                            amp_prompt = PROMPTS.get("AMPLIFIER_RECOMMENDER_PROMPT", "You are the Amplifier Selection Specialist.")
+                            response = model.generate_content(f"{amp_prompt}\n\nUSER REQS: {reqs}\n\nDATABASE: {amp_db_string}")
+                            st.markdown(response.text)
+        with col_r:
+            st.subheader("📦 Amplifier Database")
+            st.dataframe(AMPLIFIER_DB, use_container_width=True)
 
     # Onglet Battery & Electrical
     with tabs[2]:
