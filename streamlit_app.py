@@ -13,7 +13,7 @@ except:
     API_KEY = "YOUR_FALLBACK_KEY_HERE" 
 
 # --- APP LAYOUT CONFIG (Must be first) ---
-st.set_page_config(page_title="AlphaAudio V4", page_icon="☢️", layout="wide")
+st.set_page_config(page_title="AlphaAudio", page_icon="☢️", layout="wide")
 
 # --- LOAD DATABASES ---
 @st.cache_data # Cache this so it doesn't reload on every click
