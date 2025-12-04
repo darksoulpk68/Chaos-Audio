@@ -651,69 +651,72 @@ elif page == "⚔️ Build Comparison":
 # ==============================================================================
 elif page == "🎓 Beginner's Guide":
     st.header("🎓 Beginner's Guide: System Questionnaire")
-    st.write("Fill out this questionnaire to get a personalized recommendation for your car audio system.")
+    st.write("Answer these questions about your listening habits and goals, and our AI will create a personalized car audio system plan for you.")
 
     with st.form("beginner_questionnaire"):
-        st.subheader("Your Goals")
-        goals = st.radio(
-            "What is your primary goal?",
-            ("Quality", "Light bass increase", "Heavy bass increase", "Full competition mode", "Wind & hairtricks", "Other")
-        )
-        if goals == "Other":
-            other_goal = st.text_input("Please specify your other goal:")
-
-        st.subheader("Budget and Installation")
-        budget = st.text_input("What is your budget? ($)", "1000")
-        install_size = st.select_slider(
-            "What is the available installation size?",
-            options=["Small", "Medium", "Large", "Extra Large"]
+        st.subheader("Your Listening Style")
+        
+        music_genres = st.multiselect(
+            "What kind of music do you listen to most?",
+            ["Rock", "Pop", "Hip-Hop / Rap", "Electronic (EDM)", "Country", "Jazz / Classical", "Metal", "Other"],
+            help="Select the genres you listen to most often. This helps determine the kind of sound signature you might enjoy."
         )
 
-        st.subheader("Components to Include")
-        include_components = st.multiselect(
-            "What do you want to include?",
-            ["Custom install", "Powered enclosure", "Aftermarket radio", "Stock headunit", "Changing speakers", "Wiring objective"]
+        sound_preference = st.radio(
+            "What's more important to you?",
+            ("🔊 Deep, powerful bass", "🎤 Clear vocals and instruments", "🎶 A balance of both"),
+            help="This tells us whether to focus on subwoofers for bass, speakers for clarity, or a balanced system."
         )
-        more_inclusions = st.text_area("Anything else to include?")
 
-        st.subheader("Advanced Components")
-        st.write("Select any advanced components you think you might need:")
-        dsp_needed = st.checkbox("DSP (Digital Signal Processor)")
-        loc_needed = st.checkbox("LOC (Line Output Converter)")
-        distro_needed = st.checkbox("Distributor/Distro Blocks")
-        battery_needed = st.checkbox("Additional Batteries")
-        other_components = st.text_area("Other components:")
+        loudness_preference = st.select_slider(
+            "How loud do you like your music?",
+            options=["Subtle", "Lively", "Loud", "Very Loud", "Competition Level"],
+            value="Lively",
+            help="This helps determine the power requirements for your amplifiers and speakers. 'Competition Level' requires significant electrical upgrades."
+        )
 
-        st.subheader("Vehicle Information")
-        car_info = st.text_input("What is your car's make, model, and year?")
+        st.subheader("Your Setup & Budget")
 
-        submitted = st.form_submit_button("Get Recommendation")
+        current_setup = st.radio(
+            "What is your current car audio setup?",
+            ("Completely stock (factory radio and speakers)", "Aftermarket radio, stock speakers", "Stock radio, aftermarket speakers", "Some aftermarket components (radio, speakers, amp, etc.)"),
+            help="Knowing your starting point is crucial. An aftermarket radio is a great foundation, while a stock radio might require special adapters."
+        )
+
+        budget = st.text_input(
+            "What is your approximate budget for this project? ($)", 
+            "1000",
+            help="Enter a realistic budget for all components (radio, speakers, amps, wiring, etc.) and installation if you're not doing it yourself."
+        )
+
+        installation_plan = st.radio(
+            "Do you plan to do the installation yourself?",
+            ("Yes, all of it", "I'll do some of it", "No, I'll have a professional do it"),
+            help="This helps us recommend a system that matches your installation comfort level. Some setups are much more complex than others."
+        )
+
+        st.subheader("Your Vehicle")
+        car_info = st.text_input(
+            "What is your car's make, model, and year?",
+            help="e.g., '2015 Ford F-150'. This is important for knowing the available space and potential acoustic challenges of your vehicle."
+        )
+
+        submitted = st.form_submit_button("Build My Plan")
 
         if submitted:
             model = get_working_model()
             if model:
                 with st.spinner("Generating your personalized recommendation..."):
                     # Consolidate all the questionnaire data into a single string
-                    questionnaire_data = f"Goals: {goals}"
-                    if goals == "Other":
-                        questionnaire_data += f" - {other_goal}"
-                    questionnaire_data += f"\nBudget: ${budget}"
-                    questionnaire_data += f"\nInstallation Size: {install_size}"
-                    questionnaire_data += f"\nComponents to Include: {', '.join(include_components)}"
-                    if more_inclusions:
-                        questionnaire_data += f"\nMore Inclusions: {more_inclusions}"
-                    
-                    advanced_components = []
-                    if dsp_needed: advanced_components.append("DSP")
-                    if loc_needed: advanced_components.append("LOC")
-                    if distro_needed: advanced_components.append("Distributor/Distro Blocks")
-                    if battery_needed: advanced_components.append("Additional Batteries")
-                    if advanced_components:
-                        questionnaire_data += f"\nAdvanced Components: {', '.join(advanced_components)}"
-                    if other_components:
-                        questionnaire_data += f"\nOther Components: {other_components}"
-
-                    questionnaire_data += f"\nVehicle: {car_info}"
+                    questionnaire_data = (
+                        f"Music Genres: {', '.join(music_genres)}\n"
+                        f"Sound Preference: {sound_preference}\n"
+                        f"Loudness Preference: {loudness_preference}\n"
+                        f"Current Setup: {current_setup}\n"
+                        f"Budget: ${budget}\n"
+                        f"Installation Plan: {installation_plan}\n"
+                        f"Vehicle: {car_info}"
+                    )
 
                     # Get the specific prompt for the beginner's guide
                     beginner_prompt = PROMPTS.get("BEGINNER_GUIDE_PROMPT", "You are a car audio expert guiding a beginner.")
