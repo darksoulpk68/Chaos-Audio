@@ -122,6 +122,10 @@ with st.sidebar:
     if st.button("⚔️ Build Comparison", use_container_width=True):
         st.session_state["page"] = "⚔️ Build Comparison"
         st.rerun()
+
+    if st.button("🎓 Beginner's Guide", use_container_width=True):
+        st.session_state["page"] = "🎓 Beginner's Guide"
+        st.rerun()
     
     # Optional: allow user to add a short extra prompt used by the simulator
     st.markdown("---")
@@ -142,6 +146,8 @@ with st.sidebar:
         st.info("💡 **Tip:** Use the AI Recommender to find subs that fit your music style.")
     elif page == "⚔️ Build Comparison":
         st.info("💡 **Tip:** Great for deciding between two different subwoofer brands.")
+    elif page == "🎓 Beginner's Guide":
+        st.info("💡 **Tip:** Fill out the questionnaire to get a personalized audio system recommendation.")
     elif page == "welcome":
         st.info("💡 **Tip:** Click a menu item to get started!")
 
@@ -639,3 +645,82 @@ elif page == "⚔️ Build Comparison":
                 combined_data = "\n".join(build_data)
                 response = model.generate_content(f"{COMPARISON_PROMPT}\n\nDATA:\n{combined_data}")
                 st.success(response.text)
+
+# ==============================================================================
+# PAGE 4: BEGINNER'S GUIDE
+# ==============================================================================
+elif page == "🎓 Beginner's Guide":
+    st.header("🎓 Beginner's Guide: System Questionnaire")
+    st.write("Fill out this questionnaire to get a personalized recommendation for your car audio system.")
+
+    with st.form("beginner_questionnaire"):
+        st.subheader("Your Goals")
+        goals = st.radio(
+            "What is your primary goal?",
+            ("Quality", "Light bass increase", "Heavy bass increase", "Full competition mode", "Wind & hairtricks", "Other")
+        )
+        if goals == "Other":
+            other_goal = st.text_input("Please specify your other goal:")
+
+        st.subheader("Budget and Installation")
+        budget = st.text_input("What is your budget? ($)", "1000")
+        install_size = st.select_slider(
+            "What is the available installation size?",
+            options=["Small", "Medium", "Large", "Extra Large"]
+        )
+
+        st.subheader("Components to Include")
+        include_components = st.multiselect(
+            "What do you want to include?",
+            ["Custom install", "Powered enclosure", "Aftermarket radio", "Stock headunit", "Changing speakers", "Wiring objective"]
+        )
+        more_inclusions = st.text_area("Anything else to include?")
+
+        st.subheader("Advanced Components")
+        st.write("Select any advanced components you think you might need:")
+        dsp_needed = st.checkbox("DSP (Digital Signal Processor)")
+        loc_needed = st.checkbox("LOC (Line Output Converter)")
+        distro_needed = st.checkbox("Distributor/Distro Blocks")
+        battery_needed = st.checkbox("Additional Batteries")
+        other_components = st.text_area("Other components:")
+
+        st.subheader("Vehicle Information")
+        car_info = st.text_input("What is your car's make, model, and year?")
+
+        submitted = st.form_submit_button("Get Recommendation")
+
+        if submitted:
+            model = get_working_model()
+            if model:
+                with st.spinner("Generating your personalized recommendation..."):
+                    # Consolidate all the questionnaire data into a single string
+                    questionnaire_data = f"Goals: {goals}"
+                    if goals == "Other":
+                        questionnaire_data += f" - {other_goal}"
+                    questionnaire_data += f"\nBudget: ${budget}"
+                    questionnaire_data += f"\nInstallation Size: {install_size}"
+                    questionnaire_data += f"\nComponents to Include: {', '.join(include_components)}"
+                    if more_inclusions:
+                        questionnaire_data += f"\nMore Inclusions: {more_inclusions}"
+                    
+                    advanced_components = []
+                    if dsp_needed: advanced_components.append("DSP")
+                    if loc_needed: advanced_components.append("LOC")
+                    if distro_needed: advanced_components.append("Distributor/Distro Blocks")
+                    if battery_needed: advanced_components.append("Additional Batteries")
+                    if advanced_components:
+                        questionnaire_data += f"\nAdvanced Components: {', '.join(advanced_components)}"
+                    if other_components:
+                        questionnaire_data += f"\nOther Components: {other_components}"
+
+                    questionnaire_data += f"\nVehicle: {car_info}"
+
+                    # Get the specific prompt for the beginner's guide
+                    beginner_prompt = PROMPTS.get("BEGINNER_GUIDE_PROMPT", "You are a car audio expert guiding a beginner.")
+                    
+                    # Combine the prompt and the questionnaire data
+                    full_prompt = f"{beginner_prompt}\n\nHere is the user's questionnaire:\n{questionnaire_data}"
+                    
+                    # Generate the recommendation
+                    response = model.generate_content(full_prompt)
+                    st.markdown(response.text)
