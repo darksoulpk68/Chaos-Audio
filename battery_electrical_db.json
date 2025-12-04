@@ -20,7 +20,8 @@
     {"brand": "Mechman", "model": "G-Series 370A", "amperage": 370, "voltage": 14.8, "notes": "High output, direct fit for GM/Ford/Chrysler"},
     {"brand": "Singer", "model": "Singer 320A", "amperage": 320, "voltage": 14.6, "notes": "Custom wound, high idle output"},
     {"brand": "JS Alternators", "model": "JS 400A", "amperage": 400, "voltage": 15, "notes": "Extreme SPL builds, custom fit"},
-    {"brand": "DC Power", "model": "SPX 270A", "amperage": 270, "voltage": 14.4, "notes": "Reliable, good for daily driver"}
+    {"brand": "DC Power", "model": "SPX 270A", "amperage": 270, "voltage": 14.4, "notes": "Reliable, good for daily driver"},
+    {"brand": "Autotech Engineering", "model": "All", "amperage": 240-400, "voltage": 14.4, "notes": "Made to order, direct fit or little modification"}
   ],
   "wiring_guides": [
     {"topic": "Big 3 Upgrade", "details": "Upgrade alternator, battery, and chassis grounds to 1/0 AWG OFC copper for max current flow."},
