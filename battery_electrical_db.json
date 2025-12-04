@@ -1,0 +1,34 @@
+{
+  "batteries": [
+    {"brand": "Yinlong", "type": "LTO", "model": "Yinlong 66160H", "voltage": 2.3, "capacity_Ah": 40, "chemistry": "Lithium Titanate", "max_discharge_A": 400, "size": "Cylindrical", "notes": "High cycle life, fast charge, safe for car audio"},
+    {"brand": "LifePo4", "type": "LifePo4", "model": "EVE LF280K", "voltage": 3.2, "capacity_Ah": 280, "chemistry": "Lithium Iron Phosphate", "max_discharge_A": 280, "size": "Prismatic", "notes": "Popular for high-power builds, safe, long life"},
+    {"brand": "SCiB", "type": "SCiB", "model": "Toshiba SCiB 23Ah", "voltage": 2.4, "capacity_Ah": 23, "chemistry": "Lithium Titanate", "max_discharge_A": 200, "size": "Cylindrical", "notes": "Extreme cycle life, fast charge"},
+    {"brand": "Northstar", "type": "AGM", "model": "NSB-AGM31", "voltage": 12, "capacity_Ah": 103, "chemistry": "AGM Lead Acid", "max_discharge_A": 2000, "size": "Group 31", "notes": "Traditional, reliable, heavy"},
+    {"brand": "Gushen", "type": "LTO", "model": "Gushen 66160H", "voltage": 2.3, "capacity_Ah": 40, "chemistry": "Lithium Titanate", "max_discharge_A": 400, "size": "Cylindrical", "notes": "Similar to Yinlong, high current"},
+    {"brand": "Lishen", "type": "LifePo4", "model": "Lishen 272Ah", "voltage": 3.2, "capacity_Ah": 272, "chemistry": "Lithium Iron Phosphate", "max_discharge_A": 272, "size": "Prismatic", "notes": "High capacity, good for big builds"},
+    {"brand": "EVE", "type": "LifePo4", "model": "EVE LF105", "voltage": 3.2, "capacity_Ah": 105, "chemistry": "Lithium Iron Phosphate", "max_discharge_A": 105, "size": "Prismatic", "notes": "Compact, safe"},
+    {"brand": "Proto", "type": "LTO", "model": "Proto 40Ah", "voltage": 2.3, "capacity_Ah": 40, "chemistry": "Lithium Titanate", "max_discharge_A": 400, "size": "Cylindrical", "notes": "Prototype, high current"},
+    {"brand": "Lev60F", "type": "LTO", "model": "Lev60F", "voltage": 2.3, "capacity_Ah": 60, "chemistry": "Lithium Titanate", "max_discharge_A": 600, "size": "Cylindrical", "notes": "High current, used in SPL"},
+    {"brand": "Sodium", "type": "Sodium", "model": "Sodium Prototype", "voltage": 2.5, "capacity_Ah": 50, "chemistry": "Sodium Ion", "max_discharge_A": 200, "size": "Prismatic", "notes": "Experimental, not common"},
+    {"brand": "Cmax", "type": "Li-ion", "model": "Ford Cmax Hybrid Cell", "voltage": 3.7, "capacity_Ah": 5, "chemistry": "Lithium Ion", "max_discharge_A": 50, "size": "Pouch", "notes": "OEM hybrid cell, used in custom banks"},
+    {"brand": "EH5", "type": "LifePo4", "model": "EH5 100Ah", "voltage": 3.2, "capacity_Ah": 100, "chemistry": "Lithium Iron Phosphate", "max_discharge_A": 100, "size": "Prismatic", "notes": "Good for moderate builds"},
+    {"brand": "Shengquan", "type": "LTO", "model": "Shengquan 40Ah", "voltage": 2.3, "capacity_Ah": 40, "chemistry": "Lithium Titanate", "max_discharge_A": 400, "size": "Cylindrical", "notes": "Chinese LTO, high current"},
+    {"brand": "Spim", "type": "LifePo4", "model": "Spim 25Ah", "voltage": 3.2, "capacity_Ah": 25, "chemistry": "Lithium Iron Phosphate", "max_discharge_A": 25, "size": "Prismatic", "notes": "Small, modular"},
+    {"brand": "Sapt", "type": "LifePo4", "model": "Sapt 280Ah", "voltage": 3.2, "capacity_Ah": 280, "chemistry": "Lithium Iron Phosphate", "max_discharge_A": 280, "size": "Prismatic", "notes": "High capacity, safe"}
+  ],
+  "alternators": [
+    {"brand": "Mechman", "model": "G-Series 370A", "amperage": 370, "voltage": 14.8, "notes": "High output, direct fit for GM/Ford/Chrysler"},
+    {"brand": "Singer", "model": "Singer 320A", "amperage": 320, "voltage": 14.6, "notes": "Custom wound, high idle output"},
+    {"brand": "JS Alternators", "model": "JS 400A", "amperage": 400, "voltage": 15, "notes": "Extreme SPL builds, custom fit"},
+    {"brand": "DC Power", "model": "SPX 270A", "amperage": 270, "voltage": 14.4, "notes": "Reliable, good for daily driver"}
+  ],
+  "wiring_guides": [
+    {"topic": "Big 3 Upgrade", "details": "Upgrade alternator, battery, and chassis grounds to 1/0 AWG OFC copper for max current flow."},
+    {"topic": "Fuse Sizing", "details": "Fuse should be rated for wire, not amp. Use ANL fuses, 1.25x expected max current."},
+    {"topic": "Lithium Safety", "details": "Always use a BMS with lithium banks. Monitor cell voltage and temperature."},
+    {"topic": "Parallel vs Series", "details": "Parallel for more Ah, series for higher voltage. Match system voltage to amp requirements."},
+    {"topic": "Wire Gauge", "details": "1/0 AWG for main runs, 4 AWG for smaller amps. Use OFC copper, avoid CCA."},
+    {"topic": "Alternator Sensing", "details": "Run a dedicated sense wire for voltage regulation stability."},
+    {"topic": "Grounding", "details": "Sand paint off chassis ground points, use star washers for best contact."}
+  ]
+}

@@ -23,20 +23,17 @@ def load_data():
             sub_db = json.load(f)
     except:
         sub_db = []
-    
+
     try:
         with open("models.json", "r") as f:
             model_list = json.load(f)
     except:
-        # Fallback list if file missing
         model_list = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro"]
-    
-    # Load editable prompts from external file so users can change them per session
+
     try:
         with open("design_prompts.json", "r") as f:
             prompts = json.load(f)
     except:
-        # Default prompts if external file missing or invalid
         prompts = {
             "ARCHITECT_PROMPT": "You are the AUDIO ARCHITECT. Design enclosure based on inputs. Output specs list.",
             "STRUCTURAL_PROMPT": "You are the STRUCTURAL ANALYST. Predict damage based on power/tolerance.",
@@ -46,16 +43,21 @@ def load_data():
             "COMPARISON_PROMPT": "You are the COMPARISON ENGINE. Compare these builds side-by-side and declare a winner for the specific goal."
         }
 
-    # Load amplifiers DB (optional)
     try:
         with open("amplifiers_db.json", "r") as f:
             amplifier_db = json.load(f)
     except:
         amplifier_db = []
 
-    return sub_db, model_list, prompts, amplifier_db
+    try:
+        with open("battery_electrical_db.json", "r") as f:
+            battery_electrical_db = json.load(f)
+    except:
+        battery_electrical_db = {"batteries":[],"alternators":[],"wiring_guides":[]}
 
-SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB = load_data()
+    return sub_db, model_list, prompts, amplifier_db, battery_electrical_db
+
+SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB, BATTERY_ELECTRICAL_DB = load_data()
 
 # --- HELPER FUNCTIONS ---
 def get_working_model():
@@ -376,7 +378,38 @@ elif page == "🧪 Gear Lab":
     # Onglet Battery & Electrical
     with tabs[2]:
         st.subheader("Battery Setups & Electrical Requirements")
-        st.info("À compléter : Ajoutez ici la base de données des batteries, alternateurs, câblage électrique, etc.")
+        col_bat, col_alt = st.columns([2, 1])
+        with col_bat:
+            st.markdown("### Battery Database")
+            st.dataframe(BATTERY_ELECTRICAL_DB.get("batteries", []), use_container_width=True)
+        with col_alt:
+            st.markdown("### Alternator Database")
+            st.dataframe(BATTERY_ELECTRICAL_DB.get("alternators", []), use_container_width=True)
+
+        st.markdown("---")
+        st.markdown("### Wiring Guides & Tips")
+        for guide in BATTERY_ELECTRICAL_DB.get("wiring_guides", []):
+            st.markdown(f"**{guide['topic']}**: {guide['details']}")
+
+        st.markdown("---")
+        st.markdown("### AI Battery/Electrical Recommender")
+        with st.form("battery_recommender_form"):
+            bat_budget = st.text_input("Budget ($)", "1000")
+            bat_type = st.selectbox("Preferred Chemistry", ["Any", "LifePo4", "LTO", "AGM", "Sodium", "Li-ion", "SCiB"], index=0)
+            bat_capacity = st.text_input("Minimum Capacity (Ah)", "40")
+            alt_needed = st.text_input("Required Alternator Amps", "320")
+            install_notes = st.text_area("Installation Constraints / Notes (optional)", "")
+            bat_submit = st.form_submit_button("🔎 Recommend Battery/Electrical Setup")
+
+            if bat_submit:
+                model = get_working_model()
+                if model:
+                    with st.spinner("Analyzing battery/electrical database..."):
+                        reqs = f"Budget: {bat_budget}, Chemistry: {bat_type}, MinCapacity: {bat_capacity}, AltAmps: {alt_needed}, Notes: {install_notes}"
+                        bat_db_string = str(BATTERY_ELECTRICAL_DB)
+                        bat_prompt = PROMPTS.get("BATTERY_RECOMMENDER_PROMPT", "You are the Battery/Electrical Selection Specialist.")
+                        response = model.generate_content(f"{bat_prompt}\n\nUSER REQS: {reqs}\n\nDATABASE: {bat_db_string}")
+                        st.markdown(response.text)
 
     # Onglet Headunits & Processors
     with tabs[3]:
