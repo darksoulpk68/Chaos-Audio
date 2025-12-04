@@ -1,0 +1,16 @@
+{
+  "headunits": [
+    {"brand": "Pioneer", "model": "DEH-80PRS", "preout_voltage": 5, "clipping_point_v": 4.7, "chassis_type": "Single DIN", "eq_bands": 16, "internal_eq": true, "floating": false, "external": false, "custom": false, "features": ["3-way active", "Auto EQ", "Time Alignment", "Bluetooth", "FLAC support"], "notes": "Reference SQ, high preout, full tuning"},
+    {"brand": "Sony", "model": "XAV-AX7000", "preout_voltage": 5, "clipping_point_v": 4.5, "chassis_type": "Double DIN", "eq_bands": 10, "internal_eq": true, "floating": false, "external": false, "custom": false, "features": ["High Power Output", "Apple CarPlay", "Android Auto", "Rear Camera"], "notes": "Great for OEM+ and high output"},
+    {"brand": "Alpine", "model": "iLX-F509", "preout_voltage": 4, "clipping_point_v": 3.8, "chassis_type": "Floating", "eq_bands": 13, "internal_eq": true, "floating": true, "external": false, "custom": false, "features": ["9-inch display", "Wireless CarPlay", "Parametric EQ", "Hi-Res Audio"], "notes": "Modern, floating, big screen"},
+    {"brand": "Kenwood", "model": "DMX1057XR", "preout_voltage": 5, "clipping_point_v": 4.6, "chassis_type": "Floating", "eq_bands": 13, "internal_eq": true, "floating": true, "external": false, "custom": false, "features": ["10.1-inch", "Wireless Android Auto", "DSP", "Hi-Res"], "notes": "Big screen, full DSP"},
+    {"brand": "Helix", "model": "URC.3", "preout_voltage": 8, "clipping_point_v": 7.5, "chassis_type": "External", "eq_bands": 0, "internal_eq": false, "floating": false, "external": true, "custom": false, "features": ["Remote for DSP"], "notes": "External controller for Helix DSP"}
+  ],
+  "processors": [
+    {"brand": "MiniDSP", "model": "2x4 HD", "input_topology": "Analog RCA", "channels_in": 2, "channels_out": 4, "active": true, "passive": false, "tuning": "Full DSP", "features": ["USB Config", "Parametric EQ", "Crossover", "Delay"], "notes": "Entry-level, flexible, PC tuning"},
+    {"brand": "Helix", "model": "DSP Ultra", "input_topology": "Analog RCA + Optical", "channels_in": 8, "channels_out": 10, "active": true, "passive": false, "tuning": "Advanced DSP", "features": ["Auto EQ", "Bluetooth", "App Control", "Matrix Mixer"], "notes": "High-end, for full active systems"},
+    {"brand": "AudioControl", "model": "DM-810", "input_topology": "High/Low Level", "channels_in": 8, "channels_out": 10, "active": true, "passive": false, "tuning": "Full DSP", "features": ["AccuBASS", "AutoMode", "Signal Summing"], "notes": "OEM integration, flexible inputs"},
+    {"brand": "Dayton Audio", "model": "DSP-408", "input_topology": "Analog RCA", "channels_in": 4, "channels_out": 8, "active": true, "passive": false, "tuning": "Full DSP", "features": ["Bluetooth", "App Control", "Parametric EQ"], "notes": "Affordable, app-based tuning"},
+    {"brand": "PAC", "model": "LP7-4", "input_topology": "LOC", "channels_in": 4, "channels_out": 4, "active": false, "passive": true, "tuning": "None", "features": ["Line Output Converter"], "notes": "Passive LOC, for adding amps to OEM radios"}
+  ]
+}

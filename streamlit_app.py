@@ -55,9 +55,15 @@ def load_data():
     except:
         battery_electrical_db = {"batteries":[],"alternators":[],"wiring_guides":[]}
 
-    return sub_db, model_list, prompts, amplifier_db, battery_electrical_db
+    try:
+        with open("headunits_processors_db.json", "r") as f:
+            headunits_processors_db = json.load(f)
+    except:
+        headunits_processors_db = {"headunits":[],"processors":[]}
 
-SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB, BATTERY_ELECTRICAL_DB = load_data()
+    return sub_db, model_list, prompts, amplifier_db, battery_electrical_db, headunits_processors_db
+
+SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB, BATTERY_ELECTRICAL_DB, HEADUNITS_PROCESSORS_DB = load_data()
 
 # --- HELPER FUNCTIONS ---
 def get_working_model():
@@ -102,44 +108,7 @@ with st.sidebar:
     c_top = st.columns([10,1])
     with c_top[0]:
         st.title("☢️ AlphaAudio")
-    with c_top[1]:
-        if st.button("⚙️", key="settings_btn", help="Configurer le matériel de prompt additionnel"):
-            st.session_state["show_prompt_settings"] = True
-
-    st.markdown("### DeepMind Logic Engine")
-    st.markdown("---")
-
-    # Fenêtre flottante pour configurer le matériel de prompt additionnel
-    def is_audio_relevant(text):
-        audio_keywords = ["audio", "subwoofer", "enclosure", "bass", "speaker", "amplifier", "rms", "frequency", "hertz", "db", "sound", "music", "car", "vehicle", "build", "coil", "watt", "box", "tuning", "SPL", "hairtrick", "woofer", "driver", "amp", "system", "setup", "power"]
-        bad_keywords = ["jailbreak", "ignore", "disregard", "malicious", "hack", "exploit", "prompt injection", "system", "admin", "password", "shutdown", "delete", "format", "root", "sudo", "os", "linux", "windows", "mac", "network", "internet", "web", "http", "https", "token", "api key", "keygen", "bypass"]
-        text_l = text.lower()
-        if any(k in text_l for k in audio_keywords) and not any(b in text_l for b in bad_keywords):
-            return True
-        return False
-
-    if "add_prompt" not in st.session_state:
-        st.session_state["add_prompt"] = ""
-    if "show_prompt_settings" not in st.session_state:
-        st.session_state["show_prompt_settings"] = False
-
-    if st.session_state["show_prompt_settings"]:
-        with st.popover("⚙️ Matériel de prompt additionnel"):
-            add_prompt = st.text_area("Ajoutez des précisions audio (optionnel)", st.session_state["add_prompt"], help="Ex: précisez le style musical, la configuration, etc. (audio uniquement)")
-            if add_prompt and not is_audio_relevant(add_prompt):
-                st.warning("⛔️ Le texte ajouté n'est pas reconnu comme pertinent pour l'audio. Il sera ignoré.")
-                add_prompt = ""
-            st.session_state["add_prompt"] = add_prompt
-            if st.button("Fermer", key="close_prompt_settings"):
-                st.session_state["show_prompt_settings"] = False
-    else:
-        add_prompt = st.session_state["add_prompt"]
-    
-    # Initialize 'page' in session state if it doesn't exist
-    if "page" not in st.session_state:
-        st.session_state["page"] = "🎛️ Design Studio"
-
-    # Navigation Buttons (Full Width for Style)
+    # SUPPRESSION DU CODE DE CHARGEMENT DE FICHIERS EN DEHORS DE LA FONCTION
     st.markdown("#### Menu")
     if st.button("🎛️ Design Studio", use_container_width=True):
         st.session_state["page"] = "🎛️ Design Studio"
@@ -150,6 +119,15 @@ with st.sidebar:
     if st.button("⚔️ Build Comparison", use_container_width=True):
         st.session_state["page"] = "⚔️ Build Comparison"
     
+    # Optional: allow user to add a short extra prompt used by the simulator
+    st.markdown("---")
+    st.markdown("#### Prompt Addition (optional)")
+    st.text_area("Add extra instructions for the simulator (optional)", key="add_prompt", height=80)
+    # Ensure `add_prompt` exists in session state and mirror it to a local variable
+    if 'add_prompt' not in st.session_state:
+        st.session_state['add_prompt'] = ""
+    add_prompt = st.session_state.get('add_prompt', "")
+
     # Pass the session state to the variable the rest of the app expects
     page = st.session_state["page"]
 
@@ -414,7 +392,53 @@ elif page == "🧪 Gear Lab":
     # Onglet Headunits & Processors
     with tabs[3]:
         st.subheader("Headunits & Processors Shopping")
-        st.info("À compléter : Ajoutez ici la base de données des sources, DSP, processeurs, etc.")
+        col_hu, col_proc = st.columns([2, 2])
+        with col_hu:
+            st.markdown("### Headunit Database")
+            st.dataframe(HEADUNITS_PROCESSORS_DB.get("headunits", []), use_container_width=True)
+        with col_proc:
+            st.markdown("### Processor/LOC Database")
+            st.dataframe(HEADUNITS_PROCESSORS_DB.get("processors", []), use_container_width=True)
+
+        st.markdown("---")
+        st.markdown("### AI Headunit Recommender")
+        with st.form("headunit_recommender_form"):
+            hu_budget = st.text_input("Budget ($)", "600")
+            chassis_type = st.selectbox("Chassis Type", ["Any", "Single DIN", "Double DIN", "Floating", "External", "Custom"], index=0)
+            min_preout = st.text_input("Minimum Pre-out Voltage (V)", "4")
+            eq_needed = st.selectbox("Internal EQ Needed", ["Any", "Yes", "No"], index=0)
+            data_integration = st.selectbox("Data Integration", ["Any", "Yes", "No"], index=0)
+            hu_notes = st.text_area("Features/Notes (Bluetooth, CarPlay, etc.)", "")
+            hu_submit = st.form_submit_button("🔎 Recommend Headunits")
+            if hu_submit:
+                model = get_working_model()
+                if model:
+                    with st.spinner("Analyzing headunit database..."):
+                        reqs = f"Budget: {hu_budget}, Chassis: {chassis_type}, MinPreout: {min_preout}, EQ: {eq_needed}, Data: {data_integration}, Notes: {hu_notes}"
+                        hu_db_string = str(HEADUNITS_PROCESSORS_DB.get("headunits", []))
+                        hu_prompt = PROMPTS.get("HEADUNIT_RECOMMENDER_PROMPT", "You are the Headunit Selection Specialist.")
+                        response = model.generate_content(f"{hu_prompt}\n\nUSER REQS: {reqs}\n\nDATABASE: {hu_db_string}")
+                        st.markdown(response.text)
+
+        st.markdown("---")
+        st.markdown("### AI Processor/LOC Recommender")
+        with st.form("processor_recommender_form"):
+            proc_budget = st.text_input("Budget ($)", "400")
+            input_topology = st.selectbox("Input Topology", ["Any", "Analog RCA", "High/Low Level", "Optical", "LOC"], index=0)
+            channels_in = st.text_input("Channels In", "2")
+            channels_out = st.text_input("Channels Out", "4")
+            active_needed = st.selectbox("Active DSP Needed", ["Any", "Yes", "No"], index=0)
+            tuning = st.text_area("Tuning Needs/Notes", "")
+            proc_submit = st.form_submit_button("🔎 Recommend Processor/LOC")
+            if proc_submit:
+                model = get_working_model()
+                if model:
+                    with st.spinner("Analyzing processor/LOC database..."):
+                        reqs = f"Budget: {proc_budget}, Input: {input_topology}, ChannelsIn: {channels_in}, ChannelsOut: {channels_out}, Active: {active_needed}, Tuning: {tuning}"
+                        proc_db_string = str(HEADUNITS_PROCESSORS_DB.get("processors", []))
+                        proc_prompt = PROMPTS.get("PROCESSOR_RECOMMENDER_PROMPT", "You are the Processor/LOC Selection Specialist.")
+                        response = model.generate_content(f"{proc_prompt}\n\nUSER REQS: {reqs}\n\nDATABASE: {proc_db_string}")
+                        st.markdown(response.text)
 
     # Onglet Wiring Guide
     with tabs[4]:
