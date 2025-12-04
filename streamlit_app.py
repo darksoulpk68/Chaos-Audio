@@ -88,29 +88,43 @@ COMPARISON_PROMPT = PROMPTS.get("COMPARISON_PROMPT")
 # MAIN NAVIGATION (SIDEBAR)
 # ==============================================================================
 with st.sidebar:
-    st.title("☢️ AlphaAudio")
+
+    # Barre du haut avec icône settings
+    c_top = st.columns([10,1])
+    with c_top[0]:
+        st.title("☢️ AlphaAudio")
+    with c_top[1]:
+        if st.button("⚙️", key="settings_btn", help="Configurer le matériel de prompt additionnel"):
+            st.session_state["show_prompt_settings"] = True
+
     st.markdown("### DeepMind Logic Engine")
     st.markdown("---")
 
-    # Section pour ajouter du matériel de prompt additionnel
-    st.markdown("#### Matériel de prompt additionnel")
-    add_prompt = st.text_area("Ajoutez des précisions audio (optionnel)", "", help="Ex: précisez le style musical, la configuration, etc. (audio uniquement)")
-
-    # Scan simple pour détecter du contenu non-audio ou potentiellement malicieux
+    # Fenêtre flottante pour configurer le matériel de prompt additionnel
     def is_audio_relevant(text):
-        # Liste de mots-clés audio
         audio_keywords = ["audio", "subwoofer", "enclosure", "bass", "speaker", "amplifier", "rms", "frequency", "hertz", "db", "sound", "music", "car", "vehicle", "build", "coil", "watt", "box", "tuning", "SPL", "hairtrick", "woofer", "driver", "amp", "system", "setup", "power"]
-        # Liste de mots-clés suspects
         bad_keywords = ["jailbreak", "ignore", "disregard", "malicious", "hack", "exploit", "prompt injection", "system", "admin", "password", "shutdown", "delete", "format", "root", "sudo", "os", "linux", "windows", "mac", "network", "internet", "web", "http", "https", "token", "api key", "keygen", "bypass"]
         text_l = text.lower()
-        # Si un mot-clé audio est présent et aucun mot-clé suspect, c'est OK
         if any(k in text_l for k in audio_keywords) and not any(b in text_l for b in bad_keywords):
             return True
         return False
 
-    if add_prompt and not is_audio_relevant(add_prompt):
-        st.warning("⛔️ Le texte ajouté n'est pas reconnu comme pertinent pour l'audio. Il sera ignoré.")
-        add_prompt = ""
+    if "add_prompt" not in st.session_state:
+        st.session_state["add_prompt"] = ""
+    if "show_prompt_settings" not in st.session_state:
+        st.session_state["show_prompt_settings"] = False
+
+    if st.session_state["show_prompt_settings"]:
+        with st.popover("⚙️ Matériel de prompt additionnel"):
+            add_prompt = st.text_area("Ajoutez des précisions audio (optionnel)", st.session_state["add_prompt"], help="Ex: précisez le style musical, la configuration, etc. (audio uniquement)")
+            if add_prompt and not is_audio_relevant(add_prompt):
+                st.warning("⛔️ Le texte ajouté n'est pas reconnu comme pertinent pour l'audio. Il sera ignoré.")
+                add_prompt = ""
+            st.session_state["add_prompt"] = add_prompt
+            if st.button("Fermer", key="close_prompt_settings"):
+                st.session_state["show_prompt_settings"] = False
+    else:
+        add_prompt = st.session_state["add_prompt"]
     
     # Initialize 'page' in session state if it doesn't exist
     if "page" not in st.session_state:
