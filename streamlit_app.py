@@ -305,29 +305,64 @@ if page == "🎛️ Design Studio":
 # ==============================================================================
 elif page == "🧪 Gear Lab":
     st.header("🧪 Gear Laboratory")
-    
-    col_a, col_b = st.columns([1, 2])
-    
-    with col_a:
-        st.subheader("AI Recommender")
-        with st.form("recommender_form"):
-            user_budget = st.text_input("Budget ($)", "1500")
-            music_style = st.selectbox("Music Style", ["Decaf (20-30Hz)", "Rap (30-40Hz)", "EDM (40Hz+)", "Metal"])
-            goal = st.radio("Goal", ["Wind/Hairtricks", "SPL Score", "Sound Quality"])
-            submitted = st.form_submit_button("🤖 Find My Subwoofer")
-            
-            if submitted:
-                model = get_working_model()
-                if model:
-                    with st.spinner("Analyzing Database..."):
-                        reqs = f"Budget: {user_budget}, Music: {music_style}, Goal: {goal}"
-                        db_string = str(SUBWOOFER_DB) 
-                        response = model.generate_content(f"{RECOMMENDER_PROMPT}\n\nUSER REQS: {reqs}\n\nDATABASE: {db_string}")
-                        st.markdown(response.text)
-    
-    with col_b:
-        st.subheader("📦 Component Database")
-        st.dataframe(SUBWOOFER_DB, use_container_width=True)
+
+    # Onglets pour naviguer entre les catégories
+    tab_labels = [
+        "Subwoofers",
+        "Amplifiers",
+        "Battery & Electrical",
+        "Headunits & Processors",
+        "Wiring Guide",
+        "Other Accessories"
+    ]
+    tabs = st.tabs(tab_labels)
+
+    # Onglet Subwoofers
+    with tabs[0]:
+        col_a, col_b = st.columns([1, 2])
+        with col_a:
+            st.subheader("AI Recommender")
+            with st.form("recommender_form"):
+                user_budget = st.text_input("Budget ($)", "1500")
+                music_style = st.selectbox("Music Style", ["Decaf (20-30Hz)", "Rap (30-40Hz)", "EDM (40Hz+)", "Metal"])
+                goal = st.radio("Goal", ["Wind/Hairtricks", "SPL Score", "Sound Quality"])
+                submitted = st.form_submit_button("🤖 Find My Subwoofer")
+                if submitted:
+                    model = get_working_model()
+                    if model:
+                        with st.spinner("Analyzing Database..."):
+                            reqs = f"Budget: {user_budget}, Music: {music_style}, Goal: {goal}"
+                            db_string = str(SUBWOOFER_DB)
+                            response = model.generate_content(f"{RECOMMENDER_PROMPT}\n\nUSER REQS: {reqs}\n\nDATABASE: {db_string}")
+                            st.markdown(response.text)
+        with col_b:
+            st.subheader("📦 Subwoofer Database")
+            st.dataframe(SUBWOOFER_DB, use_container_width=True)
+
+    # Onglet Amplifiers
+    with tabs[1]:
+        st.subheader("Amplifiers Shopping & Database")
+        st.info("À compléter : Ajoutez ici la base de données des amplis et les outils de recommandation.")
+
+    # Onglet Battery & Electrical
+    with tabs[2]:
+        st.subheader("Battery Setups & Electrical Requirements")
+        st.info("À compléter : Ajoutez ici la base de données des batteries, alternateurs, câblage électrique, etc.")
+
+    # Onglet Headunits & Processors
+    with tabs[3]:
+        st.subheader("Headunits & Processors Shopping")
+        st.info("À compléter : Ajoutez ici la base de données des sources, DSP, processeurs, etc.")
+
+    # Onglet Wiring Guide
+    with tabs[4]:
+        st.subheader("Wiring Guide")
+        st.info("À compléter : Ajoutez ici des guides de câblage, schémas, conseils, etc.")
+
+    # Onglet Other Accessories
+    with tabs[5]:
+        st.subheader("Other Accessories, Inputs, Distro Blocks, etc.")
+        st.info("À compléter : Ajoutez ici la base de données des accessoires, connecteurs, distribution, etc.")
 
 # ==============================================================================
 # PAGE 3: BUILD COMPARISON
