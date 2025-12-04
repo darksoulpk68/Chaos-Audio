@@ -111,19 +111,19 @@ with st.sidebar:
         st.title("☢️ AlphaAudio")
     # SUPPRESSION DU CODE DE CHARGEMENT DE FICHIERS EN DEHORS DE LA FONCTION
     st.markdown("#### Menu")
-    if st.button("🎛️ Design Studio", width=True):
+    if st.button("🎛️ Design Studio", width=stretch):
         st.session_state["page"] = "🎛️ Design Studio"
         st.rerun() # Rerun to reflect page change immediately
         
-    if st.button("🧪 Gear Lab", width=True):
+    if st.button("🧪 Gear Lab", width=stretch):
         st.session_state["page"] = "🧪 Gear Lab"
         st.rerun()
         
-    if st.button("⚔️ Build Comparison", width=True):
+    if st.button("⚔️ Build Comparison", width=stretch):
         st.session_state["page"] = "⚔️ Build Comparison"
         st.rerun()
 
-    if st.button("🎓 Beginner's Guide", width=True):
+    if st.button("🎓 Beginner's Guide", width=stretch):
         st.session_state["page"] = "🎓 Beginner's Guide"
         st.rerun()
     
@@ -211,7 +211,7 @@ elif page == "🎛️ Design Studio":
             tolerance = st.select_slider("Destruction Tolerance", options=["Zero", "Rattles", "Flex", "Breakage", "TERMINATION"])
             comments = st.text_area("Describe your goals or your actual build, giving as much information as possible", "e.g. 'Lithium bank, chasing hairtricks'")
 
-        if st.button("🚀 INITIATE SIMULATION", type="primary", width=True):
+        if st.button("🚀 INITIATE SIMULATION", type="primary", width=stretch):
             model = get_working_model()
             if model:
                 # 1. ARCHITECT
@@ -376,7 +376,7 @@ elif page == "🧪 Gear Lab":
                             st.markdown(response.text)
         with col_b:
             st.subheader("📦 Subwoofer Database")
-            st.dataframe(SUBWOOFER_DB, width=True)
+            st.dataframe(SUBWOOFER_DB, width=stretch)
 
     # Onglet Amplifiers
     with tabs[1]:
@@ -403,7 +403,7 @@ elif page == "🧪 Gear Lab":
                             st.markdown(response.text)
         with col_r:
             st.subheader("📦 Amplifier Database")
-            st.dataframe(AMPLIFIER_DB, width=True)
+            st.dataframe(AMPLIFIER_DB, width=stretch)
 
     # Onglet Battery & Electrical
     with tabs[2]:
@@ -411,10 +411,10 @@ elif page == "🧪 Gear Lab":
         col_bat, col_alt = st.columns([2, 1])
         with col_bat:
             st.markdown("### Battery Database")
-            st.dataframe(BATTERY_ELECTRICAL_DB.get("batteries", []), width=True)
+            st.dataframe(BATTERY_ELECTRICAL_DB.get("batteries", []), width=stretch)
         with col_alt:
             st.markdown("### Alternator Database")
-            st.dataframe(BATTERY_ELECTRICAL_DB.get("alternators", []), width=True)
+            st.dataframe(BATTERY_ELECTRICAL_DB.get("alternators", []), width=stretch)
 
         st.markdown("---")
         st.markdown("### Wiring Guides & Tips")
@@ -447,10 +447,10 @@ elif page == "🧪 Gear Lab":
         col_hu, col_proc = st.columns([2, 2])
         with col_hu:
             st.markdown("### Headunit Database")
-            st.dataframe(HEADUNITS_PROCESSORS_DB.get("headunits", []), width=True)
+            st.dataframe(HEADUNITS_PROCESSORS_DB.get("headunits", []), width=stretch)
         with col_proc:
             st.markdown("### Processor/LOC Database")
-            st.dataframe(HEADUNITS_PROCESSORS_DB.get("processors", []), width=True)
+            st.dataframe(HEADUNITS_PROCESSORS_DB.get("processors", []), width=stretch)
 
         st.markdown("---")
         st.markdown("### AI Headunit Recommender")
@@ -638,7 +638,7 @@ elif page == "⚔️ Build Comparison":
             c_pwr = st.text_input(f"Power #{i+1}", key=f"p{i}")
             build_data.append(f"Build {i+1}: {c_model}, {c_sub}, {c_pwr}")
 
-    if st.button("🚀 FIGHT!", type="primary", width=True):
+    if st.button("🚀 FIGHT!", type="primary", width=stretch):
         model = get_working_model()
         if model:
             with st.spinner("Simulating Battle..."):
