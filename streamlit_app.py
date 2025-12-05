@@ -108,7 +108,9 @@ with st.sidebar:
     # Barre du haut avec icône settings
     c_top = st.columns([10,1])
     with c_top[0]:
-        st.title("☢️ AlphaAudio")
+        if st.button("☢️ AlphaAudio", help="Go back to the Welcome Page"):
+            st.session_state['page'] = "welcome"
+            st.rerun()
     # SUPPRESSION DU CODE DE CHARGEMENT DE FICHIERS EN DEHORS DE LA FONCTION
     st.markdown("#### Menu")
     if st.button("🎛️ Design Studio", width="stretch"):
