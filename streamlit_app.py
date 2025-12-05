@@ -668,7 +668,10 @@ elif page == "🎓 Beginner's Guide":
         "pro_install_percent": 0.25,
         "simple_install_discount_percent": -0.05,
         "luxury_percent": 0.40,
-        "aftermarket_radio_cost": 400
+        "aftermarket_radio_cost": 400,
+        "audiophile_percent": 0.30,
+        "spl_percent": 0.15,
+        "sql_percent": 0.20
     }
 
     # --- INTERACTIVE CONTROLS (OUTSIDE THE FORM) ---
@@ -678,48 +681,83 @@ elif page == "🎓 Beginner's Guide":
         music_genres = st.multiselect(
             "Music Genres",
             ["Rock", "Pop", "Hip-Hop / Rap", "Electronic (EDM)", "Country", "Jazz / Classical", "Metal", "Other"],
-            key="bg_music_genres"
+            key="bg_music_genres",
+            help="Select the music you listen to most. This helps the AI choose components (like subwoofers and speakers) that are best suited for your taste."
         )
         sound_preference = st.radio(
             "Sound Preference",
             ("Balance", "Bass", "Clarity"),
-            key="bg_sound_preference", horizontal=True
+            key="bg_sound_preference", horizontal=True,
+            help="Tell us what's most important to you. 'Balance' for an all-around system. 'Bass' for deep, powerful lows. 'Clarity' for crisp, detailed highs and vocals."
         )
     with c2:
-        car_info = st.text_input("Make, Model, Year", key="bg_car_info", placeholder="e.g., 2015 Ford F-150")
+        car_info = st.text_input("Make, Model, Year", key="bg_car_info", placeholder="e.g., 2015 Ford F-150", help="Enter your vehicle's details. This helps determine available space, and potential need for specific integrations (like a new headunit or processor).")
         current_setup = st.radio(
             "Current Setup",
             ("Stock", "Aftermarket HU", "Aftermarket Speakers"),
-            key="bg_current_setup", horizontal=True
+            key="bg_current_setup", horizontal=True,
+            help="Let us know what's already in your car. 'Stock' means no changes. If you have an 'Aftermarket HU' (Headunit/Radio) or 'Speakers', the AI will factor that into the plan."
         )
     with c3:
-        loudness_preference = st.select_slider("Loudness Goal", options=["Subtle", "Lively", "Loud", "Very Loud", "Competition"], key="bg_loudness")
+        loudness_preference = st.select_slider("Loudness Goal", options=["Subtle", "Lively", "Loud", "Very Loud", "Competition"], key="bg_loudness", help="How loud do you want it? 'Subtle' is just above stock. 'Lively' is for spirited driving. 'Loud' and 'Very Loud' require significant power and component upgrades. 'Competition' is for extreme performance.")
 
 
     st.subheader("Installation & Aesthetics")
-    c4, c5 = st.columns(2)
+    c4, c5, c6 = st.columns(3)
     with c4:
         installation_plan = st.radio(
             "Installation Plan",
             ("DIY (Do-It-Yourself)", "Professional Install"),
-            key="bg_installation_plan"
+            key="bg_installation_plan",
+            help="Choose 'DIY' if you plan to install the system yourself. Choose 'Professional Install' to have an expert do it, which will add a significant cost percentage to the final estimate."
         )
+        goal_point = st.radio(
+            "Goal Point",
+            ("Audiophile (SQ)", "SPL (Bass)", "SQL (Balanced)"),
+            key="bg_goal_point",
+            help="Define your primary audio goal. 'Audiophile' focuses on pristine sound quality. 'SPL' focuses on maximum loudness and bass. 'SQL' provides a mix of quality and loudness."
+        )
+
     with c5:
         aesthetic_focus = st.radio(
             "Aesthetic Goal",
             ("Function over form", "Luxury/Beauty Finish"),
-            key="bg_aesthetic_focus"
+            key="bg_aesthetic_focus",
+            help="Choose 'Function over form' for a basic, hidden installation. Choose 'Luxury/Beauty Finish' for custom fabrication, lighting, and premium materials, which increases the cost."
         )
     
-    install_complexity = st.checkbox("Keep the install simple? (e.g., avoid custom fabrication)", key="bg_install_complexity", value=True)
+    with c6:
+        decibel_goal = st.text_input(
+            "Decibel Goal (dB)",
+            key="bg_decibel_goal",
+            placeholder="e.g., 140 (Optional)",
+            help="Enter a specific decibel number you want to achieve. Leave empty if you want the AI to recommend a level based on your other choices. This will influence component selection."
+        )
+        install_complexity = st.checkbox(
+            "Keep the install simple?",
+            key="bg_install_complexity",
+            value=True,
+            help="Check this to prioritize components and designs that are easier to install, avoiding complex custom fabrication like fiberglass or welded metal racks."
+        )
     st.divider()
 
     # --- DYNAMIC PACKAGE CARDS ---
     st.subheader("Select Your Project Tier")
 
-    def calculate_price(base_min, base_max, tier_name):
+    def calculate_price(base_min, base_max, tier_name, goal_point):
         min_price, max_price = base_min, base_max
         
+        # Apply goal point modifier
+        if goal_point == "Audiophile (SQ)":
+            min_price *= (1 + MODIFIERS["audiophile_percent"])
+            max_price *= (1 + MODIFIERS["audiophile_percent"])
+        elif goal_point == "SPL (Bass)":
+            min_price *= (1 + MODIFIERS["spl_percent"])
+            max_price *= (1 + MODIFIERS["spl_percent"])
+        elif goal_point == "SQL (Balanced)":
+            min_price *= (1 + MODIFIERS["sql_percent"])
+            max_price *= (1 + MODIFIERS["sql_percent"])
+
         # Add headunit cost if needed
         if current_setup == "Stock" and tier_name in ["Enhanced", "Audiophile", "Competition"]:
             min_price += MODIFIERS["aftermarket_radio_cost"]
@@ -747,7 +785,7 @@ elif page == "🎓 Beginner's Guide":
             is_selected = (st.session_state.bg_selected_tier == tier_key)
             with st.container(border=True):
                 st.markdown(f"#### {tier_info['name']}")
-                price_range = calculate_price(tier_info['base_min'], tier_info['base_max'], tier_key)
+                price_range = calculate_price(tier_info['base_min'], tier_info['base_max'], tier_key, goal_point)
                 st.markdown(f"**Price Range:** {price_range}")
                 st.markdown(f"<small>{tier_info['desc']}</small>", unsafe_allow_html=True)
                 
@@ -765,7 +803,7 @@ elif page == "🎓 Beginner's Guide":
         if submitted:
             # Re-fetch values from session state for clarity
             selected_tier_info = TIERS[st.session_state.bg_selected_tier]
-            final_price_range = calculate_price(selected_tier_info['base_min'], selected_tier_info['base_max'], st.session_state.bg_selected_tier)
+            final_price_range = calculate_price(selected_tier_info['base_min'], selected_tier_info['base_max'], st.session_state.bg_selected_tier, st.session_state.bg_goal_point)
 
             model = get_working_model()
             if model:
@@ -781,7 +819,9 @@ elif page == "🎓 Beginner's Guide":
                         f"Estimated Final Price Range: {final_price_range}\n"
                         f"Installation Plan: {st.session_state.bg_installation_plan}\n"
                         f"Keep Install Simple: {'Yes' if st.session_state.bg_install_complexity else 'No'}\n"
-                        f"Aesthetic Goal: {st.session_state.bg_aesthetic_focus}"
+                        f"Aesthetic Goal: {st.session_state.bg_aesthetic_focus}\n"
+                        f"Goal Point: {st.session_state.bg_goal_point}\n"
+                        f"Decibel Goal: {st.session_state.bg_decibel_goal if st.session_state.bg_decibel_goal else 'Not Specified'}"
                     )
 
                     # Create the new detailed prompt that includes the databases
