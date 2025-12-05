@@ -769,7 +769,8 @@ elif page == "🎓 Beginner's Guide":
 
             model = get_working_model()
             if model:
-                with st.spinner("Generating your personalized recommendation..."):
+                with st.spinner("Searching Gear Lab and building two systems for you..."):
+                    # Consolidate user questionnaire data
                     questionnaire_data = (
                         f"Music Genres: {', '.join(st.session_state.bg_music_genres)}\n"
                         f"Sound Preference: {st.session_state.bg_sound_preference}\n"
@@ -782,8 +783,40 @@ elif page == "🎓 Beginner's Guide":
                         f"Keep Install Simple: {'Yes' if st.session_state.bg_install_complexity else 'No'}\n"
                         f"Aesthetic Goal: {st.session_state.bg_aesthetic_focus}"
                     )
-                    beginner_prompt = PROMPTS.get("BEGINNER_GUIDE_PROMPT", "You are a car audio expert guiding a beginner.")
-                    full_prompt = f"{beginner_prompt}\n\nHere is the user's questionnaire:\n{questionnaire_data}"
+
+                    # Create the new detailed prompt that includes the databases
+                    beginner_prompt = f"""
+You are a world-class car audio system designer for beginners. Your task is to create two complete, distinct car audio systems based on the user's preferences and budget, using the provided equipment databases.
+
+**CRITICAL INSTRUCTIONS:**
+1.  **Use Provided Databases:** You MUST select specific components (subwoofers, amplifiers, headunits, processors) from the JSON databases provided below. Do not invent components.
+2.  **Create Two Distinct Builds:** Design two different system options that fit the user's goals. For example, one focused more on sound quality (SQ) and one on loudness/bass (SPL), or two different brands. Give each build a descriptive name (e.g., "The Clarity Build," "The Basshead's Budget Build").
+3.  **Stay Within Budget:** The total cost of the components for each build MUST fall within the user's "Estimated Final Price Range". You must show the estimated total price for each build.
+4.  **Explain Your Choices:** For each component in each build, briefly explain WHY you chose it and how it fits the user's goals (music taste, loudness, budget, etc.).
+5.  **Handle Missing Components:** The databases may not include all necessary parts (like door speakers or wiring kits). If a required component is not in the database, you must:
+    a. Recommend a *type* and *size* of component (e.g., "6.5-inch Component Speakers").
+    b. Suggest a reasonable estimated price for that missing item.
+    c. Include this estimated price in the build's total cost.
+6.  **Output Format:** Present the two builds clearly and separately. Use Markdown for formatting (e.g., headers, bold text, lists).
+
+**USER'S QUESTIONNAIRE:**
+---
+{questionnaire_data}
+---
+
+**COMPONENT DATABASES (GEAR LAB):**
+---
+**Subwoofers:**
+{json.dumps(SUBWOOFER_DB, indent=2)}
+
+**Amplifiers:**
+{json.dumps(AMPLIFIER_DB, indent=2)}
+
+**Headunits and Processors:**
+{json.dumps(HEADUNITS_PROCESSORS_DB, indent=2)}
+---
+"""
                     
-                    response = model.generate_content(full_prompt)
+                    # Generate the recommendation
+                    response = model.generate_content(beginner_prompt)
                     st.markdown(response.text)
