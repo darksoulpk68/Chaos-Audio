@@ -108,39 +108,7 @@ with st.sidebar:
     # Barre du haut avec icône settings
     c_top = st.columns([10,1])
     with c_top[0]:
-        st.markdown(
-            """
-<style>
-    /* Target the first button in the sidebar to act as the title link */
-    section[data-testid="stSidebar"] .stButton:first-of-type > button {
-        border: none;
-        background-color: transparent;
-        padding: 0;
-        text-align: left;
-        font-size: 2.25rem; /* Emulate st.title font size */
-        font-weight: 600; /* Emulate st.title font weight */
-        color: inherit; /* Use theme's default text color */
-        text-decoration: none; /* Remove underline */
-    }
-    /* Add a hover effect for better UX */
-    section[data-testid="stSidebar"] .stButton:first-of-type > button:hover {
-        color: #ff4b4b; /* Streamlit's primary theme color */
-        background-color: transparent;
-        text-decoration: none;
-    }
-    /* Ensure no visual change on click */
-    section[data-testid="stSidebar"] .stButton:first-of-type > button:active {
-        color: inherit;
-        background-color: transparent;
-        text-decoration: none;
-    }
-</style>
-""",
-            unsafe_allow_html=True,
-        )
-        if st.button("☢️ AlphaAudio", help="Go back to the Welcome Page"):
-            st.session_state["page"] = "welcome"
-            st.rerun()
+        st.title("☢️ AlphaAudio")
     # SUPPRESSION DU CODE DE CHARGEMENT DE FICHIERS EN DEHORS DE LA FONCTION
     st.markdown("#### Menu")
     if st.button("🎛️ Design Studio", width="stretch"):
