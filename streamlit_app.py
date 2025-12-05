@@ -651,102 +651,139 @@ elif page == "⚔️ Build Comparison":
 # ==============================================================================
 elif page == "🎓 Beginner's Guide":
     st.header("🎓 Beginner's Guide: System Questionnaire")
-    st.write("Answer these questions about your listening habits and goals, and our AI will create a personalized car audio system plan for you.")
+    st.write("Configure your preferences below. The package prices will update in real-time based on your choices. Finally, select a package and build your plan.")
 
-    with st.form("beginner_questionnaire"):
-        st.subheader("Your Listening Style")
+    # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
+    if 'bg_selected_tier' not in st.session_state:
+        st.session_state.bg_selected_tier = "Enhanced" # Default selection
 
+    # --- TIER AND MODIFIER DEFINITIONS ---
+    TIERS = {
+        "Essential": {"name": "Essential Sound", "base_min": 400, "base_max": 800, "desc": "Upgrades main speakers and adds a compact amp. A great step up from factory sound."},
+        "Enhanced": {"name": "Enhanced Fidelity", "base_min": 1000, "base_max": 2500, "desc": "Aftermarket headunit, component speakers, amplifier, and a dedicated subwoofer. Powerful, clear sound with deep bass."},
+        "Audiophile": {"name": "Audiophile Experience", "base_min": 2500, "base_max": 5000, "desc": "High-end speakers, multiple amps, DSP for precise tuning, and sound deadening. Ultimate clarity and impact."},
+        "Competition": {"name": "Competition Grade", "base_min": 5000, "base_max": 15000, "desc": "Top-of-the-line everything, custom fabrication, and major electrical upgrades. For winning competitions."}
+    }
+    MODIFIERS = {
+        "pro_install_percent": 0.25,
+        "simple_install_discount_percent": -0.05,
+        "luxury_percent": 0.40,
+        "aftermarket_radio_cost": 400
+    }
+
+    # --- INTERACTIVE CONTROLS (OUTSIDE THE FORM) ---
+    st.subheader("Your Listening Style & Vehicle")
+    c1, c2, c3 = st.columns(3)
+    with c1:
         music_genres = st.multiselect(
-            "What kind of music do you listen to most?",
+            "Music Genres",
             ["Rock", "Pop", "Hip-Hop / Rap", "Electronic (EDM)", "Country", "Jazz / Classical", "Metal", "Other"],
-            help="Select the genres you listen to most often. This helps determine the kind of sound signature you might enjoy."
+            key="bg_music_genres"
         )
-
         sound_preference = st.radio(
-            "What's more important to you?",
-            ("🔊 Deep, powerful bass", "🎤 Clear vocals and instruments", "🎶 A balance of both"),
-            help="This tells us whether to focus on subwoofers for bass, speakers for clarity, or a balanced system."
+            "Sound Preference",
+            ("Balance", "Bass", "Clarity"),
+            key="bg_sound_preference", horizontal=True
         )
-
-        loudness_preference = st.select_slider(
-            "How loud do you like your music?",
-            options=["Subtle", "Lively", "Loud", "Very Loud", "Competition Level"],
-            value="Lively",
-            help="This helps determine the power requirements for your amplifiers and speakers. 'Competition Level' requires significant electrical upgrades."
+    with c2:
+        car_info = st.text_input("Make, Model, Year", key="bg_car_info", placeholder="e.g., 2015 Ford F-150")
+        current_setup = st.radio(
+            "Current Setup",
+            ("Stock", "Aftermarket HU", "Aftermarket Speakers"),
+            key="bg_current_setup", horizontal=True
         )
+    with c3:
+        loudness_preference = st.select_slider("Loudness Goal", options=["Subtle", "Lively", "Loud", "Very Loud", "Competition"], key="bg_loudness")
 
-        st.subheader("Your Vehicle & Setup")
+
+    st.subheader("Installation & Aesthetics")
+    c4, c5 = st.columns(2)
+    with c4:
+        installation_plan = st.radio(
+            "Installation Plan",
+            ("DIY (Do-It-Yourself)", "Professional Install"),
+            key="bg_installation_plan"
+        )
+    with c5:
+        aesthetic_focus = st.radio(
+            "Aesthetic Goal",
+            ("Function over form", "Luxury/Beauty Finish"),
+            key="bg_aesthetic_focus"
+        )
+    
+    install_complexity = st.checkbox("Keep the install simple? (e.g., avoid custom fabrication)", key="bg_install_complexity", value=True)
+    st.divider()
+
+    # --- DYNAMIC PACKAGE CARDS ---
+    st.subheader("Select Your Project Tier")
+
+    def calculate_price(base_min, base_max, tier_name):
+        min_price, max_price = base_min, base_max
         
-        col1, col2 = st.columns(2)
-        with col1:
-            car_info = st.text_input(
-                "What is your car's make, model, and year?",
-                help="e.g., '2015 Ford F-150'. This is important for knowing available space and potential challenges."
-            )
-        with col2:
-            current_setup = st.radio(
-                "What is your current car audio setup?",
-                ("Completely stock", "Aftermarket radio, stock speakers", "Some aftermarket components"),
-                help="Knowing your starting point is crucial."
-            )
+        # Add headunit cost if needed
+        if current_setup == "Stock" and tier_name in ["Enhanced", "Audiophile", "Competition"]:
+            min_price += MODIFIERS["aftermarket_radio_cost"]
+            max_price += MODIFIERS["aftermarket_radio_cost"]
 
-        st.subheader("Your Project Goals & Budget")
+        # Pro install cost
+        if installation_plan == "Professional Install":
+            install_mod = MODIFIERS["pro_install_percent"]
+            if install_complexity:
+                 install_mod += MODIFIERS["simple_install_discount_percent"]
+            min_price *= (1 + install_mod)
+            max_price *= (1 + install_mod)
 
-        budget_tier = st.radio(
-            "Choose a budget and quality tier that fits your goals:",
-            [
-                "**Essential Sound (~$500 - $1000):** A solid starting point. This tier focuses on upgrading your main speakers and maybe adding a compact amplifier to bring your music to life. Great for clarity and a significant step up from factory sound.",
-                "**Enhanced Fidelity (~$1000 - $2500):** The sweet spot for most enthusiasts. This includes an aftermarket headunit, quality component speakers, a multi-channel amplifier, and a dedicated subwoofer. Expect powerful, clear sound with deep bass.",
-                "**Audiophile Experience (~$2500 - $5000+):** For the discerning listener. This tier involves high-end speakers, multiple powerful amplifiers, a Digital Signal Processor (DSP) for precise tuning, and significant sound deadening. The goal is ultimate clarity, accuracy, and impact.",
-                "**Competition Grade ($5000+):** No compromises. This is for winning competitions in loudness (SPL) or sound quality (SQ). It requires top-of-the-line equipment, custom fabrication, major electrical system upgrades (alternator, batteries), and expert installation."
-            ],
-            index=1
-        )
+        # Luxury finish cost
+        if aesthetic_focus == "Luxury/Beauty Finish":
+            min_price *= (1 + MODIFIERS["luxury_percent"])
+            max_price *= (1 + MODIFIERS["luxury_percent"])
+            
+        return f"${int(min_price):,} - ${int(max_price):,}"
 
-        st.subheader("Installation & Aesthetics")
-        
-        col_install, col_looks = st.columns(2)
-        with col_install:
-            installation_plan = st.radio(
-                "Installation Plan",
-                ("DIY (Do-It-Yourself)", "Professional Install"),
-                help="Who will be doing the installation?"
-            )
-            install_complexity = st.checkbox("Keep the install as simple as possible (e.g., avoid custom fabrication)", value=True)
+    card_cols = st.columns(len(TIERS))
 
-        with col_looks:
-            aesthetic_focus = st.radio(
-                "Aesthetic Goal",
-                ("Plain and simple (function over form)", "Luxury/Beauty (show-car looks, hidden wires, custom panels)"),
-                help="How important is the visual appearance of the installation?"
-            )
+    for i, (tier_key, tier_info) in enumerate(TIERS.items()):
+        with card_cols[i]:
+            is_selected = (st.session_state.bg_selected_tier == tier_key)
+            with st.container(border=True):
+                st.markdown(f"#### {tier_info['name']}")
+                price_range = calculate_price(tier_info['base_min'], tier_info['base_max'], tier_key)
+                st.markdown(f"**Price Range:** {price_range}")
+                st.markdown(f"<small>{tier_info['desc']}</small>", unsafe_allow_html=True)
+                
+                # Use a callback to set the selected tier
+                if st.button(f"Select {tier_key}", key=f"select_{tier_key}", type="primary" if is_selected else "secondary", use_container_width=True):
+                    st.session_state.bg_selected_tier = tier_key
+                    st.rerun() # Rerun to update the button styles
+    st.divider()
 
-
-        submitted = st.form_submit_button("Build My Plan")
+    # --- SUBMISSION FORM ---
+    with st.form("beginner_submission"):
+        st.info(f"**Selected Package:** {st.session_state.bg_selected_tier}")
+        submitted = st.form_submit_button("Build My Plan", use_container_width=True, type="primary")
 
         if submitted:
+            # Re-fetch values from session state for clarity
+            selected_tier_info = TIERS[st.session_state.bg_selected_tier]
+            final_price_range = calculate_price(selected_tier_info['base_min'], selected_tier_info['base_max'], st.session_state.bg_selected_tier)
+
             model = get_working_model()
             if model:
                 with st.spinner("Generating your personalized recommendation..."):
-                    # Consolidate all the questionnaire data into a single string
                     questionnaire_data = (
-                        f"Music Genres: {', '.join(music_genres)}\n"
-                        f"Sound Preference: {sound_preference}\n"
-                        f"Loudness Preference: {loudness_preference}\n"
-                        f"Vehicle: {car_info}\n"
-                        f"Current Setup: {current_setup}\n"
-                        f"Selected Budget Tier: {budget_tier.split('(')[0].strip()}\n"
-                        f"Installation Plan: {installation_plan}\n"
-                        f"Keep Install Simple: {'Yes' if install_complexity else 'No'}\n"
-                        f"Aesthetic Goal: {aesthetic_focus}"
+                        f"Music Genres: {', '.join(st.session_state.bg_music_genres)}\n"
+                        f"Sound Preference: {st.session_state.bg_sound_preference}\n"
+                        f"Loudness Preference: {st.session_state.bg_loudness}\n"
+                        f"Vehicle: {st.session_state.bg_car_info}\n"
+                        f"Current Setup: {st.session_state.bg_current_setup}\n"
+                        f"Selected Tier: {selected_tier_info['name']}\n"
+                        f"Estimated Final Price Range: {final_price_range}\n"
+                        f"Installation Plan: {st.session_state.bg_installation_plan}\n"
+                        f"Keep Install Simple: {'Yes' if st.session_state.bg_install_complexity else 'No'}\n"
+                        f"Aesthetic Goal: {st.session_state.bg_aesthetic_focus}"
                     )
-
-                    # Get the specific prompt for the beginner's guide
                     beginner_prompt = PROMPTS.get("BEGINNER_GUIDE_PROMPT", "You are a car audio expert guiding a beginner.")
-                    
-                    # Combine the prompt and the questionnaire data
                     full_prompt = f"{beginner_prompt}\n\nHere is the user's questionnaire:\n{questionnaire_data}"
                     
-                    # Generate the recommendation
                     response = model.generate_content(full_prompt)
                     st.markdown(response.text)
