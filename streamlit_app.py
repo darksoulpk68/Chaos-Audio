@@ -655,7 +655,7 @@ elif page == "🎓 Beginner's Guide":
 
     with st.form("beginner_questionnaire"):
         st.subheader("Your Listening Style")
-        
+
         music_genres = st.multiselect(
             "What kind of music do you listen to most?",
             ["Rock", "Pop", "Hip-Hop / Rap", "Electronic (EDM)", "Country", "Jazz / Classical", "Metal", "Other"],
@@ -675,31 +675,52 @@ elif page == "🎓 Beginner's Guide":
             help="This helps determine the power requirements for your amplifiers and speakers. 'Competition Level' requires significant electrical upgrades."
         )
 
-        st.subheader("Your Setup & Budget")
+        st.subheader("Your Vehicle & Setup")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            car_info = st.text_input(
+                "What is your car's make, model, and year?",
+                help="e.g., '2015 Ford F-150'. This is important for knowing available space and potential challenges."
+            )
+        with col2:
+            current_setup = st.radio(
+                "What is your current car audio setup?",
+                ("Completely stock", "Aftermarket radio, stock speakers", "Some aftermarket components"),
+                help="Knowing your starting point is crucial."
+            )
 
-        current_setup = st.radio(
-            "What is your current car audio setup?",
-            ("Completely stock (factory radio and speakers)", "Aftermarket radio, stock speakers", "Stock radio, aftermarket speakers", "Some aftermarket components (radio, speakers, amp, etc.)"),
-            help="Knowing your starting point is crucial. An aftermarket radio is a great foundation, while a stock radio might require special adapters."
+        st.subheader("Your Project Goals & Budget")
+
+        budget_tier = st.radio(
+            "Choose a budget and quality tier that fits your goals:",
+            [
+                "**Essential Sound (~$500 - $1000):** A solid starting point. This tier focuses on upgrading your main speakers and maybe adding a compact amplifier to bring your music to life. Great for clarity and a significant step up from factory sound.",
+                "**Enhanced Fidelity (~$1000 - $2500):** The sweet spot for most enthusiasts. This includes an aftermarket headunit, quality component speakers, a multi-channel amplifier, and a dedicated subwoofer. Expect powerful, clear sound with deep bass.",
+                "**Audiophile Experience (~$2500 - $5000+):** For the discerning listener. This tier involves high-end speakers, multiple powerful amplifiers, a Digital Signal Processor (DSP) for precise tuning, and significant sound deadening. The goal is ultimate clarity, accuracy, and impact.",
+                "**Competition Grade ($5000+):** No compromises. This is for winning competitions in loudness (SPL) or sound quality (SQ). It requires top-of-the-line equipment, custom fabrication, major electrical system upgrades (alternator, batteries), and expert installation."
+            ],
+            index=1
         )
 
-        budget = st.text_input(
-            "What is your approximate budget for this project? ($)", 
-            "1000",
-            help="Enter a realistic budget for all components (radio, speakers, amps, wiring, etc.) and installation if you're not doing it yourself."
-        )
+        st.subheader("Installation & Aesthetics")
+        
+        col_install, col_looks = st.columns(2)
+        with col_install:
+            installation_plan = st.radio(
+                "Installation Plan",
+                ("DIY (Do-It-Yourself)", "Professional Install"),
+                help="Who will be doing the installation?"
+            )
+            install_complexity = st.checkbox("Keep the install as simple as possible (e.g., avoid custom fabrication)", value=True)
 
-        installation_plan = st.radio(
-            "Do you plan to do the installation yourself?",
-            ("Yes, all of it", "I'll do some of it", "No, I'll have a professional do it"),
-            help="This helps us recommend a system that matches your installation comfort level. Some setups are much more complex than others."
-        )
+        with col_looks:
+            aesthetic_focus = st.radio(
+                "Aesthetic Goal",
+                ("Plain and simple (function over form)", "Luxury/Beauty (show-car looks, hidden wires, custom panels)"),
+                help="How important is the visual appearance of the installation?"
+            )
 
-        st.subheader("Your Vehicle")
-        car_info = st.text_input(
-            "What is your car's make, model, and year?",
-            help="e.g., '2015 Ford F-150'. This is important for knowing the available space and potential acoustic challenges of your vehicle."
-        )
 
         submitted = st.form_submit_button("Build My Plan")
 
@@ -712,10 +733,12 @@ elif page == "🎓 Beginner's Guide":
                         f"Music Genres: {', '.join(music_genres)}\n"
                         f"Sound Preference: {sound_preference}\n"
                         f"Loudness Preference: {loudness_preference}\n"
+                        f"Vehicle: {car_info}\n"
                         f"Current Setup: {current_setup}\n"
-                        f"Budget: ${budget}\n"
+                        f"Selected Budget Tier: {budget_tier.split('(')[0].strip()}\n"
                         f"Installation Plan: {installation_plan}\n"
-                        f"Vehicle: {car_info}"
+                        f"Keep Install Simple: {'Yes' if install_complexity else 'No'}\n"
+                        f"Aesthetic Goal: {aesthetic_focus}"
                     )
 
                     # Get the specific prompt for the beginner's guide
