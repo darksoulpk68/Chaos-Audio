@@ -1,0 +1,129 @@
+{
+  "wiring_guide": {
+    "title": "Wiring & Installation Master Guide",
+    "installation_essentials": {
+      "title": "🛠️ Installation Essentials",
+      "description": "The mandatory steps for a safe, functional system.",
+      "guides": [
+        {
+          "title": "1. The 'Big Three' Upgrade",
+          "difficulty": "Beginner",
+          "details": {
+            "summary": "The foundation of high power. (Click to Expand)",
+            "content": "What is it?** Upgrading 3 key cables to 1/0 AWG OFC:\n1. Alternator Pos (+) -> Battery Pos (+)\n2. Battery Neg (-) -> Chassis Ground\n3. Engine Block -> Chassis Ground\n\n**Why?** Prevents dimming lights and allows your alternator to actually charge your battery efficiently."
+          }
+        },
+        {
+          "title": "2. The Ground Point Truth",
+          "difficulty": "Intermediate",
+          "details": {
+            "summary": "Paint is an insulator! (Click to Expand)",
+            "content": "**The Golden Rule:** You must sand away 100% of the paint and primer until you see shiny, bare silver metal.\n\n**The Technique:**\n1. Find a solid chassis bolt (seat belt bolts are great).\n2. Use a wire wheel or sandpaper to expose bare metal.\n3. Use a star washer to 'bite' into the metal.\n4. Bolt it down and spray clear coat over it to prevent rust."
+          }
+        },
+        {
+          "title": "3. Fusing Strategy 101",
+          "difficulty": "Beginner",
+          "details": {
+            "summary": "Fuse the wire, not the amp. (Click to Expand)",
+            "content": "**Location:** Must be within 18 inches of the battery positive terminal.\n\n**The Logic:** If your power wire shorts against the frame, the fuse blows to stop the car from catching fire. \n\n**Sizing:** Fuse for the *wire's* limit, not the amp's. (e.g., 4 AWG OFC = Max 150A fuse)."
+          }
+        },
+        {
+          "title": "4. The Guillotine Effect (Grommets)",
+          "difficulty": "Intermediate",
+          "details": {
+            "summary": "Don't let the firewall slice your wire. (Click to Expand)",
+            "content": "Passing 0-Gauge wire through a metal firewall without protection is a guaranteed short circuit waiting to happen.\n\n**The Fix:** Always drill a hole and insert a thick **Rubber Grommet** or a waterproof **Cable Gland**. Never use just electrical tape."
+          }
+        },
+        {
+          "title": "5. Setting Gains with a Multimeter",
+          "difficulty": "Intermediate",
+          "details": {
+            "summary": "It is NOT a volume knob. (Click to Expand)",
+            "content": "**The Math:** `Voltage = sqrt(RMS Power * Impedance)`\n\n**The Steps:**\n1. Unplug speakers.\n2. Play a 40Hz (Sub) or 1kHz (Mids) test tone at 0dB.\n3. Turn headunit to 75% volume.\n4. Measure AC Voltage at amp outputs.\n5. Turn gain knob until voltage matches your math."
+          }
+        },
+        {
+          "title": "6. Saving Ported Subs (Subsonic)",
+          "difficulty": "Advanced",
+          "details": {
+            "summary": "The invisible safety net. (Click to Expand)",
+            "content": "**Mandatory for Ported Boxes.**\n\n**Why?** Below the tuning frequency, a ported box loses all pressure. The sub will flop around ("unload") and tear itself apart.\n\n**The Setting:** Set HPF/Subsonic to **3-5Hz below** your box tuning. (Tuned to 35Hz? Set to 31Hz)."
+          }
+        },
+        {
+          "title": "7. Adding a Second Battery",
+          "difficulty": "Expert",
+          "details": {
+            "summary": "Isolators vs. Direct Connection. (Click to Expand)",
+            "content": "**The Risk:** Connecting a resting AGM (12.6V) to a Lithium (13.3V+) creates a 'vampire' loop where they fight each other.\n\n**The Fix:** Use a **Battery Isolator** relay to separate them when the car is off, OR match chemistries perfectly. Always fuse the wire at BOTH ends (front battery and rear battery)."
+          }
+        }
+      ]
+    },
+    "pro_tips_and_tricks": {
+      "title": "💡 Pro Tips & Tricks",
+      "description": "Hacks to make your install look and perform like a pro.",
+      "guides": [
+        {
+          "title": "1. Wire Ferrules",
+          "difficulty": "Beginner",
+          "details": {
+            "summary": "Stop using bare wire. (Click to Expand)",
+            "content": "**The Pro Look:** Crimp a metal ferrule onto the end of your stripped wire. \n\n**Why?** It prevents stray wire strands from causing shorts and provides a solid, flat surface for the amp terminal screw to bite down on."
+          }
+        },
+        {
+          "title": "2. Techflex & Braiding",
+          "difficulty": "Beginner",
+          "details": {
+            "summary": "Make it look like a factory harness. (Click to Expand)",
+            "content": "Cover your blue/red power wires with black nylon braided sleeving (Techflex). \n\n**Benefits:** Looks amazing, protects against abrasion/rubbing cuts, and adds heat resistance in the engine bay."
+          }
+        },
+        {
+          "title": "3. The 'Opposite Sides' Rule",
+          "difficulty": "Intermediate",
+          "details": {
+            "summary": "Prevent engine whine noise. (Click to Expand)",
+            "content": "**The Rule:** Run Power down the Driver side, and Signal (RCA) down the Passenger side.\n\n**Why?** High current in power wires creates a magnetic field that leaks noise into sensitive RCA cables. Separation is key."
+          }
+        },
+        {
+          "title": "4. Strategic Sound Deadening",
+          "difficulty": "Intermediate",
+          "details": {
+            "summary": "Stop the rattle, gain the bass. (Click to Expand)",
+            "content": "**Don't do the whole car yet.** Focus on the front doors (inner and outer skin) and the trunk lid. \n\n**The Gain:** Stiffening the metal means the energy stays inside the car as Bass, rather than escaping outside as Rattle."
+          }
+        },
+        {
+          "title": "5. The Relay Trick (Remote)",
+          "difficulty": "Advanced",
+          "details": {
+            "summary": "Save your headunit output. (Click to Expand)",
+            "content": "**The Problem:** Turning on 3 amps + fans with one thin remote wire burns out the headunit.\n\n**The Fix:** Use a simple 12V Relay. The headunit triggers the relay, and the relay sends battery power to turn on all your equipment."
+          }
+        },
+        {
+          "title": "6. The 9V Battery Pop Test",
+          "difficulty": "Beginner",
+          "details": {
+            "summary": "Find positive/negative instantly. (Click to Expand)",
+            "content": "Lost your wire labels? Touch the speaker wires to a 9V battery.\n\n* **Cone jumps OUT:** Positive is on Positive.\n* **Cone sucks IN:** Positive is on Negative."
+          }
+        },
+        {
+          "title": "7. Real-World Voltage Test",
+          "difficulty": "Advanced",
+          "details": {
+            "summary": "Diagnose the bottleneck. (Click to Expand)",
+            "content": "**The Test:** Measure voltage at the **Amp Inputs** while playing music full tilt. \n\n**The Verdict:** If your battery reads 14V but your amp reads 12V, your wire is too thin or your ground is bad. You are losing 2V just in resistance!"
+          }
+        }
+      ]
+    }
+  }
+}

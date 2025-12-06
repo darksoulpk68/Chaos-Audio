@@ -61,9 +61,15 @@ def load_data():
     except:
         headunits_processors_db = {"headunits":[],"processors":[]}
 
-    return sub_db, model_list, prompts, amplifier_db, battery_electrical_db, headunits_processors_db
+    try:
+        with open("wiring_guide.json", "r") as f:
+            wiring_guide_db = json.load(f)
+    except:
+        wiring_guide_db = {}
 
-SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB, BATTERY_ELECTRICAL_DB, HEADUNITS_PROCESSORS_DB = load_data()
+    return sub_db, model_list, prompts, amplifier_db, battery_electrical_db, headunits_processors_db, wiring_guide_db
+
+SUBWOOFER_DB, MODEL_LIST, PROMPTS, AMPLIFIER_DB, BATTERY_ELECTRICAL_DB, HEADUNITS_PROCESSORS_DB, WIRING_GUIDE_DB = load_data()
 
 # --- HELPER FUNCTIONS ---
 def get_working_model():
@@ -494,124 +500,205 @@ elif page == "🧪 Gear Lab":
 
     # Onglet Wiring Guide
     with tabs[4]:
-        st.subheader("Wiring Guide: Tips & Tricks")
+        st.header("Wiring & Installation Master Guide")
+        
+        # Create two columns
+        col1, col2 = st.columns(2, gap="large")
 
-        # Tip 1: The Big Three
-        st.markdown("#### 1. The 'Big Three' Upgrade")
-        st.select_slider(
-            "Installation Difficulty",
-            options=["Begginer", "Intermediate", "Advanced", "Expert"],
-            value="Begginer",
-            disabled=True,
-            key="diff_1"
-        )
-        with st.expander("What is the 'Big Three' and why do it? (Click to Expand)"):
-            st.markdown("""
-            The "Big Three" upgrade is a fundamental step for any car audio system that requires more power than the stock electrical system can handle. It involves upgrading three key cables:
+        # ==========================================
+        # COLUMN 1: INSTALLATION ESSENTIALS (The "Must-Dos")
+        # ==========================================
+        with col1:
+            st.subheader("🛠️ Installation Essentials")
+            st.info("The mandatory steps for a safe, functional system.")
 
-            1.  **Alternator Positive to Battery Positive:** This allows the high-output current from your alternator to flow more efficiently to your battery.
-            2.  **Battery Negative to Chassis Ground:** This improves the main ground connection for your entire vehicle's electrical system.
-            3.  **Engine Block to Chassis Ground:** This ensures a solid ground path for the engine and alternator.
+            # 1. The Big Three
+            st.markdown("#### 1. The 'Big Three' Upgrade")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_1")
+            with st.expander("The foundation of high power. (Click to Expand)"):
+                st.markdown("""
+                **What is it?** Upgrading 3 key cables to 1/0 AWG OFC:
+                1. Alternator Pos (+) -> Battery Pos (+)
+                2. Battery Neg (-) -> Chassis Ground
+                3. Engine Block -> Chassis Ground
 
-            **Why do it?**
-            -   **Reduces Voltage Drop:** Prevents your headlights from dimming when the bass hits.
-            -   **Improves Alternator Performance:** Allows your alternator to charge the battery more effectively.
-            -   **Provides a Stable Foundation:** Essential before adding a high-output alternator or a second battery.
+                **Why?** Prevents dimming lights and allows your alternator to actually charge your battery efficiently.
+                """)
 
-            **Materials:**
-            -   1/0 AWG (or larger) Oxygen-Free Copper (OFC) wire.
-            -   High-quality ring terminals.
-            -   Hydraulic crimper and heat shrink for secure connections.
-            """)
+            st.divider()
 
-        st.divider()
+            # 2. Ground Point
+            st.markdown("#### 2. The Ground Point Truth")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_7")
+            with st.expander("Paint is an insulator! (Click to Expand)"):
+                st.markdown("""
+                **The Golden Rule:** You must sand away 100% of the paint and primer until you see shiny, bare silver metal.
+                
+                **The Technique:**
+                1. Find a solid chassis bolt (seat belt bolts are great).
+                2. Use a wire wheel or sandpaper to expose bare metal.
+                3. Use a star washer to 'bite' into the metal.
+                4. Bolt it down and spray clear coat over it to prevent rust.
+                """)
 
-        # Tip 2: Properly Setting Gains
-        st.markdown("#### 2. Properly Setting Amplifier Gains")
-        st.select_slider(
-            "Installation Difficulty",
-             options=["Begginer", "Intermediate", "Advanced", "Expert"],
-            value="Begginer",
-            disabled=True,
-            key="diff_2"
-        )
-        with st.expander("Stop using your ears! Use a tool. (Click to Expand)"):
-            st.markdown("""
-            Setting your amplifier's gain is NOT a volume knob. Its purpose is to match the output voltage of your headunit to the input sensitivity of your amplifier. Setting it incorrectly is the #1 way to destroy subwoofers.
+            st.divider()
 
-            **Why do it correctly?**
-            -   **Prevents Clipping:** A clipped signal is a squared-off waveform that generates excessive heat in your subwoofer's voice coil, leading to failure.
-            -   **Maximizes Clean Power:** Ensures you get the most clean, undistorted power from your amplifier.
-            -   **Protects Your Investment:** Saves you from costly repairs or replacements.
+            # 3. Fusing Strategy
+            st.markdown("#### 3. Fusing Strategy 101")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_8")
+            with st.expander("Fuse the wire, not the amp. (Click to Expand)"):
+                st.markdown("""
+                **Location:** Must be within 18 inches of the battery positive terminal.
+                
+                **The Logic:** If your power wire shorts against the frame, the fuse blows to stop the car from catching fire. 
+                
+                **Sizing:** Fuse for the *wire's* limit, not the amp's. (e.g., 4 AWG OFC = Max 150A fuse).
+                """)
 
-            **How to do it (The Right Way):**
-            1.  **Get the Tools:** You need a Digital Multi-Meter (DMM) that can read AC Voltage or an oscilloscope.
-            2.  **Calculate Target Voltage:** Use the formula `sqrt(Power * Resistance) = Target Voltage`. For example, for a 1000W amp at 1-ohm, the target is `sqrt(1000 * 1) = 31.6V`.
-            3.  **Use a Test Tone:** Download a 40Hz test tone (for subwoofers) recorded at 0dBFS.
-            4.  **Disconnect Speakers:** Unplug your subwoofers from the amplifier.
-            5.  **Set Headunit Volume:** Turn your headunit volume to about 75% of its maximum.
-            6.  **Measure and Adjust:** Play the test tone. Connect your DMM to the amplifier's speaker outputs and adjust the gain knob until the voltage on the meter matches your calculated target voltage.
-            7.  **You're Done!** Reconnect your speakers. Your gains are now set cleanly.
-            """)
+            st.divider()
 
-        st.divider()
+            # 4. Firewall Safety
+            st.markdown("#### 4. The Guillotine Effect (Grommets)")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_10")
+            with st.expander("Don't let the firewall slice your wire. (Click to Expand)"):
+                st.markdown("""
+                Passing 0-Gauge wire through a metal firewall without protection is a guaranteed short circuit waiting to happen.
+                
+                **The Fix:** Always drill a hole and insert a thick **Rubber Grommet** or a waterproof **Cable Gland**. Never use just electrical tape.
+                """)
 
-        # Tip 3: Sound Deadening
-        st.markdown("#### 3. Strategic Sound Deadening")
-        st.select_slider(
-            "Installation Difficulty",
-             options=["Begginer", "Intermediate", "Advanced", "Expert"],
-            value="Intermediate",
-            disabled=True,
-            key="diff_3"
-        )
-        with st.expander("It's more than just stopping rattles. (Click to Expand)"):
-            st.markdown("""
-            Sound deadening is often seen as just a way to stop annoying rattles, but it plays a crucial role in improving sound quality and overall system efficiency.
+            st.divider()
 
-            **Why do it?**
-            -   **Lowers Road Noise:** A quieter cabin means you don't have to turn the music up as loud, reducing distortion.
-            -   **Improves Bass Response:** By controlling panel vibrations, you hear more of the actual bass from your subwoofers and less from the vibrating metal of your car. This is often called "free SPL."
-            -   **Reduces Panel Flex:** Stiffens the metal panels of your car, making them less likely to flex and fatigue over time.
+            # 5. Setting Gains
+            st.markdown("#### 5. Setting Gains with a Multimeter")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_2")
+            with st.expander("It is NOT a volume knob. (Click to Expand)"):
+                st.markdown("""
+                **The Math:** `Voltage = sqrt(RMS Power * Impedance)`
+                
+                **The Steps:**
+                1. Unplug speakers.
+                2. Play a 40Hz (Sub) or 1kHz (Mids) test tone at 0dB.
+                3. Turn headunit to 75% volume.
+                4. Measure AC Voltage at amp outputs.
+                5. Turn gain knob until voltage matches your math.
+                """)
 
-            **Levels of Treatment:**
-            -   **Level 1 (The Basics):** Apply Constrained Layer Damper (CLD) tiles to large, flat metal surfaces like the outer door skin, inner door skin, and trunk lid. Aim for about 25-50% coverage.
-            -   **Level 2 (The Full Monty):** After CLD, add a layer of Closed Cell Foam (CCF) on top to decouple rattling plastic panels from the metal chassis.
-            -   **Level 3 (The Seal):** For ultimate performance, cover the CCF with a layer of Mass Loaded Vinyl (MLV) to block airborne sound waves. This is the most effective but also the most difficult and expensive step.
+            st.divider()
 
-            **Pro Tip:** Don't forget the roof! It's a large, flat panel that can be a major source of unwanted vibrations.
-            """)
-                        
-        st.divider()
+            # 6. Subsonic Filter
+            st.markdown("#### 6. Saving Ported Subs (Subsonic)")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Advanced", disabled=True, key="diff_13")
+            with st.expander("The invisible safety net. (Click to Expand)"):
+                st.markdown("""
+                **Mandatory for Ported Boxes.**
+                
+                **Why?** Below the tuning frequency, a ported box loses all pressure. The sub will flop around ("unload") and tear itself apart.
+                
+                **The Setting:** Set HPF/Subsonic to **3-5Hz below** your box tuning. (Tuned to 35Hz? Set to 31Hz).
+                """)
+            
+            st.divider()
 
-        # Tip 4: Adding a Second Battery
-        st.markdown("#### 4. Safely Adding a Second Battery")
-        st.select_slider(
-            "Installation Difficulty",
-             options=["Begginer", "Intermediate", "Advanced", "Expert"],
-            value="Expert",
-            disabled=True,
-            key="diff_4"
-        )
-        with st.expander("Isolators vs. Direct Connection (Click to Expand)"):
-            st.markdown("""
-            Adding a second battery (or a bank of batteries) is necessary for high-power systems that exceed the capacity of a single starting battery and alternator. However, doing it wrong is incredibly dangerous.
+            # 7. Second Battery Safety
+            st.markdown("#### 7. Adding a Second Battery")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Expert", disabled=True, key="diff_4")
+            with st.expander("Isolators vs. Direct Connection. (Click to Expand)"):
+                st.markdown("""
+                **The Risk:** Connecting a resting AGM (12.6V) to a Lithium (13.3V+) creates a 'vampire' loop where they fight each other.
+                
+                **The Fix:** Use a **Battery Isolator** relay to separate them when the car is off, OR match chemistries perfectly. Always fuse the wire at BOTH ends (front battery and rear battery).
+                """)
 
-            **Why do it?**
-            -   **Massive Current Reserve:** Provides the instant current your amplifiers need during heavy bass notes, preventing voltage drop.
-            -   **System Stability:** Keeps voltage stable, which is critical for amplifier performance and longevity.
-            -   **Play Longer:** Allows you to play the system with the engine off (if designed correctly).
+        # ==========================================
+        # COLUMN 2: TIPS, TRICKS & HACKS (The "Pro-Mode")
+        # ==========================================
+        with col2:
+            st.subheader("💡 Pro Tips & Tricks")
+            st.info("Hacks to make your install look and perform like a pro.")
 
-            **The Great Debate: Isolator vs. No Isolator**
-            -   **With an Isolator:** A battery isolator (a large relay) is placed on the positive power wire between your front battery and your rear battery bank. It automatically disconnects the rear bank when the vehicle is off, ensuring you never drain your starting battery. **This is the recommended method for 99% of users.**
-            -   **Without an Isolator (Direct Connection):** This connects the batteries permanently in parallel. This is only safe if ALL batteries in the system are of the *exact same chemistry and age*. Mixing an AGM under the hood with a Lithium in the back without an isolator is a recipe for disaster, as they will constantly try to charge/discharge each other, leading to reduced lifespan and a potential fire risk.
+            # 1. Wire Ferrules
+            st.markdown("#### 1. Wire Ferrules")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_5")
+            with st.expander("Stop using bare wire. (Click to Expand)"):
+                st.markdown("""
+                **The Pro Look:** Crimp a metal ferrule onto the end of your stripped wire. 
+                
+                **Why?** It prevents stray wire strands from causing shorts and provides a solid, flat surface for the amp terminal screw to bite down on.
+                """)
 
-            **Critical Safety Rules:**
-            1.  **ALWAYS FUSE:** Every power wire run must be fused on BOTH ends, as close to the battery terminals as possible. If a wire shorts to ground, the fuse is the only thing preventing a major electrical fire.
-            2.  **Match Chemistries or Isolate:** Never mix battery types without a proper isolator.
-            3.  **Ground Securely:** Ensure your rear battery has a solid ground connection to the vehicle's frame, equal in size to the power wire.
-            4.  **Ventilation:** If using non-sealed batteries (like some AGMs), ensure they are properly ventilated to the outside of the vehicle.
-            """)
+            st.divider()
+
+            # 2. Techflex / Braiding
+            st.markdown("#### 2. Techflex & Braiding")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_12")
+            with st.expander("Make it look like a factory harness. (Click to Expand)"):
+                st.markdown("""
+                Cover your blue/red power wires with black nylon braided sleeving (Techflex). 
+                
+                **Benefits:** Looks amazing, protects against abrasion/rubbing cuts, and adds heat resistance in the engine bay.
+                """)
+
+            st.divider()
+
+            # 3. RCA Routing
+            st.markdown("#### 3. The 'Opposite Sides' Rule")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_6")
+            with st.expander("Prevent engine whine noise. (Click to Expand)"):
+                st.markdown("""
+                **The Rule:** Run Power down the Driver side, and Signal (RCA) down the Passenger side.
+                
+                **Why?** High current in power wires creates a magnetic field that leaks noise into sensitive RCA cables. Separation is key.
+                """)
+
+            st.divider()
+
+            # 4. Sound Deadening
+            st.markdown("#### 4. Strategic Sound Deadening")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_3")
+            with st.expander("Stop the rattle, gain the bass. (Click to Expand)"):
+                st.markdown("""
+                **Don't do the whole car yet.** Focus on the front doors (inner and outer skin) and the trunk lid. 
+                
+                **The Gain:** Stiffening the metal means the energy stays inside the car as Bass, rather than escaping outside as Rattle.
+                """)
+
+            st.divider()
+
+            # 5. The Relay Trick
+            st.markdown("#### 5. The Relay Trick (Remote)")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Advanced", disabled=True, key="diff_9")
+            with st.expander("Save your headunit output. (Click to Expand)"):
+                st.markdown("""
+                **The Problem:** Turning on 3 amps + fans with one thin remote wire burns out the headunit.
+                
+                **The Fix:** Use a simple 12V Relay. The headunit triggers the relay, and the relay sends battery power to turn on all your equipment.
+                """)
+
+            st.divider()
+
+            # 6. Polarity Pop Test
+            st.markdown("#### 6. The 9V Battery Pop Test")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_11")
+            with st.expander("Find positive/negative instantly. (Click to Expand)"):
+                st.markdown("""
+                Lost your wire labels? Touch the speaker wires to a 9V battery.
+                
+                * **Cone jumps OUT:** Positive is on Positive.
+                * **Cone sucks IN:** Positive is on Negative.
+                """)
+
+            st.divider()
+
+            # 7. Voltage Drop Test
+            st.markdown("#### 7. Real-World Voltage Test")
+            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Advanced", disabled=True, key="diff_14")
+            with st.expander("Diagnose the bottleneck. (Click to Expand)"):
+                st.markdown("""
+                **The Test:** Measure voltage at the **Amp Inputs** while playing music full tilt. 
+                
+                **The Verdict:** If your battery reads 14V but your amp reads 12V, your wire is too thin or your ground is bad. You are losing 2V just in resistance!
+                """)
 
     # Onglet Other Accessories
     with tabs[5]:
