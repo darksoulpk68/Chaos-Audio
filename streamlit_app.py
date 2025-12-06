@@ -16,6 +16,8 @@ except:
 st.set_page_config(page_title="AlphaAudio", page_icon="☢️", layout="wide")
 
 # --- LOAD DATABASES ---
+# The try-except blocks are intentionally left empty to suppress error messages.
+# If a JSON file fails to load, the app will continue to run with an empty list or dictionary.
 @st.cache_data # Cache this so it doesn't reload on every click
 def load_data():
     try:
@@ -64,17 +66,8 @@ def load_data():
     try:
         with open("wiring_guide.json", "r") as f:
             wiring_guide_db = json.load(f)
-        if "wiring_guide" not in wiring_guide_db:
-            wiring_guide_db = {"wiring_guide": {}}
-    except FileNotFoundError:
-        st.error("Error: `wiring_guide.json` not found. Please add the file to the project directory.")
-        wiring_guide_db = {"wiring_guide": {}}
-    except json.JSONDecodeError:
-        st.error("Error: `wiring_guide.json` is not a valid JSON file. Please check the file for syntax errors.")
-        wiring_guide_db = {"wiring_guide": {}}
-    except Exception as e:
-        st.error(f"An unexpected error occurred while loading `wiring_guide.json`: {e}")
-        wiring_guide_db = {"wiring_guide": {}}
+    except:
+        wiring_guide_db = {}
 
     return sub_db, model_list, prompts, amplifier_db, battery_electrical_db, headunits_processors_db, wiring_guide_db
 
@@ -509,7 +502,8 @@ elif page == "🧪 Gear Lab":
 
     # Onglet Wiring Guide
     with tabs[4]:
-        st.header(WIRING_GUIDE_DB.get("wiring_guide", {}).get("title", "Wiring & Installation Master Guide"))
+        wiring_guide = WIRING_GUIDE_DB.get("wiring_guide", {})
+        st.header(wiring_guide.get("title", "Wiring & Installation Master Guide"))
 
         # Create two columns
         col1, col2 = st.columns(2, gap="large")
@@ -518,12 +512,12 @@ elif page == "🧪 Gear Lab":
         # COLUMN 1: INSTALLATION ESSENTIALS
         # ==========================================
         with col1:
-            essentials = WIRING_GUIDE_DB.get("wiring_guide", {}).get("installation_essentials", {})
+            essentials = wiring_guide.get("installation_essentials", {})
             st.subheader(essentials.get("title", "🛠️ Installation Essentials"))
             st.info(essentials.get("description", "The mandatory steps for a safe, functional system."))
 
             for i, guide in enumerate(essentials.get("guides", [])):
-                st.markdown(f"#### {guide['title']}")
+                st.markdown(f"#### {guide.get('title', 'Untitled Guide')}")
                 st.select_slider(
                     "Difficulty Level",
                     options=["Beginner", "Intermediate", "Advanced", "Expert"],
@@ -539,12 +533,12 @@ elif page == "🧪 Gear Lab":
         # COLUMN 2: PRO TIPS & TRICKS
         # ==========================================
         with col2:
-            pro_tips = WIRING_GUIDE_DB.get("wiring_guide", {}).get("pro_tips_and_tricks", {})
+            pro_tips = wiring_guide.get("pro_tips_and_tricks", {})
             st.subheader(pro_tips.get("title", "💡 Pro Tips & Tricks"))
             st.info(pro_tips.get("description", "Hacks to make your install look and perform like a pro."))
 
             for i, guide in enumerate(pro_tips.get("guides", [])):
-                st.markdown(f"#### {guide['title']}")
+                st.markdown(f"#### {guide.get('title', 'Untitled Guide')}")
                 st.select_slider(
                     "Difficulty Level",
                     options=["Beginner", "Intermediate", "Advanced", "Expert"],
