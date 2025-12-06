@@ -598,6 +598,8 @@ elif page == "🎓 Beginner's Guide":
     if 'tutorial_step' not in st.session_state:
         st.session_state.tutorial_step = 0
 
+    
+
     # Tutorial steps definition
     TUTORIAL_STEPS = [
         {
@@ -666,6 +668,26 @@ elif page == "🎓 Beginner's Guide":
             "target": None
         }
     ]
+
+    # Handle tutorial actions via query params (prev/next/close) to avoid JS click issues
+    qp = st.experimental_get_query_params()
+    if 'tutorial_action' in qp:
+        action = qp.get('tutorial_action', [None])[0]
+        try:
+            step_from_q = int(qp.get('step', [st.session_state.tutorial_step])[0])
+        except:
+            step_from_q = st.session_state.tutorial_step
+
+        if action == 'next':
+            st.session_state.tutorial_step = min(st.session_state.tutorial_step + 1, len(TUTORIAL_STEPS)-1)
+        elif action == 'prev':
+            st.session_state.tutorial_step = max(st.session_state.tutorial_step - 1, 0)
+        elif action == 'close':
+            st.session_state.tutorial_mode = False
+
+        # clear params and rerun
+        st.experimental_set_query_params()
+        st.experimental_rerun()
 
     # Tutorial CSS for spotlight effect and smart bubble positioning
     tutorial_css = """
@@ -836,37 +858,56 @@ elif page == "🎓 Beginner's Guide":
             
             # Create arrow HTML
             arrow_html = f'<div class="tutorial-bubble-arrow {arrow_direction}"></div>'
-            
-            # Create tutorial bubble HTML (buttons will be Streamlit buttons below)
+
+            # Highlight coordinates per step (top, left, width, height)
+            HIGHLIGHTS = {
+                0: ("6%","6%","30%","12%"),
+                1: ("6%","6%","30%","12%"),
+                2: ("6%","6%","30%","12%"),
+                3: ("22%","6%","30%","14%"),
+                4: ("22%","6%","30%","14%"),
+                5: ("38%","6%","30%","14%"),
+                6: ("38%","6%","30%","14%"),
+                7: ("52%","6%","30%","14%"),
+                8: ("52%","6%","30%","14%"),
+                9: ("68%","6%","30%","14%"),
+                10: ("68%","6%","30%","14%"),
+                11: ("68%","6%","30%","14%"),
+                12: ("10%","40%","20%","10%")
+            }
+
+            hl_top, hl_left, hl_w, hl_h = HIGHLIGHTS.get(current_step, ("40%","6%","30%","14%"))
+            highlight_html = f"""
+            <div class="tutorial-highlight" style="top: {hl_top}; left: {hl_left}; width: {hl_w}; height: {hl_h};"></div>
+            """
+
+            # Create tutorial bubble HTML with action links (change query params)
+            prev_link = f"?tutorial_action=prev&step={current_step}"
+            next_link = f"?tutorial_action=next&step={current_step}"
+            close_link = f"?tutorial_action=close&step={current_step}"
+
+            buttons_html = ""
+            if current_step > 0:
+                buttons_html += f'<a href="{prev_link}" class="tutorial-btn" style="background:#e0e0e0;color:#333;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:6px;">← Prev</a>'
+            if current_step < len(TUTORIAL_STEPS) - 1:
+                buttons_html += f'<a href="{next_link}" class="tutorial-btn" style="background:#FF6B35;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:6px;">Next →</a>'
+            else:
+                buttons_html += f'<a href="{next_link}" class="tutorial-btn" style="background:#4CAF50;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:6px;">Done! ✓</a>'
+            buttons_html += f'<a href="{close_link}" class="tutorial-btn" style="background:#999;color:white;padding:8px 10px;border-radius:6px;text-decoration:none;">✕</a>'
+
             bubble_html = f"""
+            {highlight_html}
             <div class="tutorial-bubble" style="top: {top_offset}; left: {left_offset};">
                 {arrow_html}
                 <h3>{step_data['title']}</h3>
                 <p>{step_data['description']}</p>
+                <div class="tutorial-buttons-container">
+                    {buttons_html}
+                </div>
                 <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
             </div>
             """
             st.markdown(bubble_html, unsafe_allow_html=True)
-
-            # Streamlit buttons for interactions (placed under the bubble)
-            btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
-            with btn_col1:
-                if current_step > 0 and st.button("← Prev", key=f"tut_prev_visible_{current_step}"):
-                    st.session_state.tutorial_step -= 1
-                    st.rerun()
-            with btn_col2:
-                if current_step < len(TUTORIAL_STEPS) - 1:
-                    if st.button("Next →", key=f"tut_next_visible_{current_step}"):
-                        st.session_state.tutorial_step += 1
-                        st.rerun()
-                else:
-                    if st.button("Done! ✓", key=f"tut_done_visible_{current_step}"):
-                        st.session_state.tutorial_mode = False
-                        st.rerun()
-            with btn_col3:
-                if st.button("✕ Close", key=f"tut_close_visible_{current_step}"):
-                    st.session_state.tutorial_mode = False
-                    st.rerun()
 
     # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
     if 'bg_selected_tier' not in st.session_state:
