@@ -64,9 +64,17 @@ def load_data():
     try:
         with open("wiring_guide.json", "r") as f:
             wiring_guide_db = json.load(f)
+        if "wiring_guide" not in wiring_guide_db:
+            wiring_guide_db = {"wiring_guide": {}}
+    except FileNotFoundError:
+        st.error("Error: `wiring_guide.json` not found. Please add the file to the project directory.")
+        wiring_guide_db = {"wiring_guide": {}}
+    except json.JSONDecodeError:
+        st.error("Error: `wiring_guide.json` is not a valid JSON file. Please check the file for syntax errors.")
+        wiring_guide_db = {"wiring_guide": {}}
     except Exception as e:
-        st.error(f"Error loading wiring_guide.json: {e}")
-        wiring_guide_db = {}
+        st.error(f"An unexpected error occurred while loading `wiring_guide.json`: {e}")
+        wiring_guide_db = {"wiring_guide": {}}
 
     return sub_db, model_list, prompts, amplifier_db, battery_electrical_db, headunits_processors_db, wiring_guide_db
 
