@@ -667,7 +667,7 @@ elif page == "🎓 Beginner's Guide":
         }
     ]
 
-    # Tutorial CSS for blur effect and floating window
+    # Tutorial CSS for bubble tooltip with arrow pointing to element
     tutorial_css = """
     <style>
     .tutorial-overlay {
@@ -676,70 +676,96 @@ elif page == "🎓 Beginner's Guide":
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        pointer-events: none;
+    }
+    
+    .tutorial-highlight {
+        position: fixed;
+        border: 3px solid #FF6B35;
+        border-radius: 8px;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
         z-index: 999;
         pointer-events: none;
     }
     
-    .tutorial-window {
+    .tutorial-bubble {
         position: fixed;
         background: white;
-        border: 3px solid #FF6B35;
+        border: 2px solid #FF6B35;
         border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         z-index: 1000;
-        max-width: 400px;
-        font-family: Arial, sans-serif;
+        max-width: 380px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     }
     
-    .tutorial-window h3 {
-        margin: 0 0 16px 0;
+    .tutorial-bubble h3 {
+        margin: 0 0 12px 0;
         color: #FF6B35;
-        font-size: 20px;
+        font-size: 18px;
+        font-weight: 600;
     }
     
-    .tutorial-window p {
-        margin: 0 0 20px 0;
+    .tutorial-bubble p {
+        margin: 0 0 16px 0;
         color: #333;
-        line-height: 1.6;
+        line-height: 1.5;
         font-size: 14px;
+        white-space: pre-wrap;
+    }
+    
+    .tutorial-bubble-arrow {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+    }
+    
+    .tutorial-bubble-arrow-top {
+        top: -12px;
+        left: 30px;
+        border-width: 0 8px 12px 8px;
+        border-color: transparent transparent white transparent;
+    }
+    
+    .tutorial-bubble-arrow-bottom {
+        bottom: -12px;
+        left: 30px;
+        border-width: 12px 8px 0 8px;
+        border-color: white transparent transparent transparent;
+    }
+    
+    .tutorial-bubble-arrow-top::after {
+        content: '';
+        position: absolute;
+        top: -14px;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 8px 12px 8px;
+        border-color: transparent transparent #FF6B35 transparent;
+    }
+    
+    .tutorial-bubble-arrow-bottom::after {
+        content: '';
+        position: absolute;
+        bottom: -14px;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 12px 8px 0 8px;
+        border-color: #FF6B35 transparent transparent transparent;
     }
     
     .tutorial-buttons {
         display: flex;
-        gap: 12px;
-        justify-content: space-between;
-    }
-    
-    .tutorial-btn {
-        padding: 10px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: bold;
-        transition: all 0.3s;
-    }
-    
-    .tutorial-btn-next {
-        background: #FF6B35;
-        color: white;
-        flex: 1;
-    }
-    
-    .tutorial-btn-next:hover {
-        background: #E55A24;
-    }
-    
-    .tutorial-btn-close {
-        background: #e0e0e0;
-        color: #333;
-        padding: 10px 20px;
-    }
-    
-    .tutorial-btn-close:hover {
-        background: #d0d0d0;
+        gap: 10px;
+        margin-top: 16px;
     }
     
     .tutorial-progress {
@@ -747,17 +773,7 @@ elif page == "🎓 Beginner's Guide":
         text-align: center;
         color: #999;
         font-size: 12px;
-    }
-    
-    [data-tutorial-target] {
-        position: relative;
-        z-index: 1001 !important;
-        filter: none !important;
-    }
-    
-    .tutorial-highlight {
-        box-shadow: 0 0 0 3px #FF6B35 !important;
-        border-radius: 8px;
+        font-weight: 500;
     }
     </style>
     """
@@ -784,33 +800,36 @@ elif page == "🎓 Beginner's Guide":
         if current_step < len(TUTORIAL_STEPS):
             step_data = TUTORIAL_STEPS[current_step]
             
-            # Create tutorial window with Streamlit buttons
-            tutorial_col1, tutorial_col2 = st.columns(2)
+            # Create tutorial bubble HTML with arrow pointing to element
+            bubble_arrow = '<div class="tutorial-bubble-arrow tutorial-bubble-arrow-bottom"></div>'
+            
+            tutorial_bubble_html = f"""
+            <div class="tutorial-bubble" style="top: 50%; left: 50%; transform: translate(-50%, -50%); animation: slideIn 0.3s ease-out;">
+                {bubble_arrow}
+                <h3>{step_data['title']}</h3>
+                <p>{step_data['description']}</p>
+                <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
+            </div>
+            """
+            st.markdown(tutorial_bubble_html, unsafe_allow_html=True)
+            
+            # Navigation buttons
+            tutorial_col1, tutorial_col2, tutorial_col3 = st.columns([1, 1, 1])
             
             with tutorial_col1:
-                if st.button("✕ Close Tutorial", key=f"tut_close_{current_step}"):
+                if st.button("✕ Close", key=f"tut_close_{current_step}"):
                     st.session_state.tutorial_mode = False
                     st.rerun()
             
-            with tutorial_col2:
+            with tutorial_col3:
                 if current_step < len(TUTORIAL_STEPS) - 1:
                     if st.button("Next →", key=f"tut_next_{current_step}", type="primary"):
                         st.session_state.tutorial_step += 1
                         st.rerun()
                 else:
-                    if st.button("Done!", key=f"tut_done_{current_step}", type="primary"):
+                    if st.button("Done! ✓", key=f"tut_done_{current_step}", type="primary"):
                         st.session_state.tutorial_mode = False
                         st.rerun()
-            
-            # Display tutorial info box
-            st.info(f"""
-            ### {step_data['title']}
-            
-            {step_data['description']}
-            
-            ---
-            **Step {current_step + 1} of {len(TUTORIAL_STEPS)}**
-            """)
 
     # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
     if 'bg_selected_tier' not in st.session_state:
