@@ -598,6 +598,7 @@ elif page == "🎓 Beginner's Guide":
 
     # --- TIER AND MODIFIER DEFINITIONS ---
     TIERS = {
+        "Budget SPL": {"name": "Budget SPL Warrior", "base_min": 800, "base_max": 2000, "desc": "Entry-level setup: Budget-friendly amp (e.g., Taramps), affordable subwoofer(s), and enclosure. Maximize loudness without premium component costs."},
         "Essential": {"name": "Essential Sound", "base_min": 400, "base_max": 800, "desc": "Upgrades main speakers and adds a compact amp. A great step up from factory sound."},
         "Enhanced": {"name": "Enhanced Fidelity", "base_min": 1000, "base_max": 2500, "desc": "Aftermarket headunit, component speakers, amplifier, and a dedicated subwoofer. Powerful, clear sound with deep bass."},
         "Audiophile": {"name": "Audiophile Experience", "base_min": 2500, "base_max": 5000, "desc": "High-end speakers, multiple amps, DSP for precise tuning, and sound deadening. Ultimate clarity and impact."},
@@ -678,6 +679,23 @@ elif page == "🎓 Beginner's Guide":
             value=True,
             help="Check this to prioritize components and designs that are easier to install, avoiding complex custom fabrication like fiberglass or welded metal racks."
         )
+
+    st.subheader("Subwoofer Enclosure & Component Strategy")
+    c7, c8 = st.columns(2)
+    with c7:
+        enclosure_type = st.selectbox(
+            "Enclosure Type",
+            ("Sealed", "Ported (Vented)", "4th Order Bandpass", "6th Order Bandpass", "No Wall (Free Air)", "Trunk Wall (Reflected)", "B-Pillar/C-Pillar Wall"),
+            key="bg_enclosure_type",
+            help="Choose the enclosure design based on your vehicle and sound goals. Sealed = accurate, tight bass. Ported = louder, boomy bass. Bandpass = extreme SPL. No Wall = flex and power. Wall setups = space efficiency."
+        )
+    with c8:
+        component_strategy = st.selectbox(
+            "Component Budget Strategy",
+            ("Balanced", "Amp & Enclosure Focus (Budget Parts)", "Speaker Quality Focus (Economy Amp)"),
+            key="bg_component_strategy",
+            help="'Balanced' = equal budget across amp, sub, enclosure. 'Amp & Enclosure Focus' = save on sub quality, invest in amp & enclosure for extreme SPL. 'Speaker Quality Focus' = budget amp, invest in high-quality subwoofers and processing."
+        )
     st.divider()
 
     # --- DYNAMIC PACKAGE CARDS ---
@@ -697,8 +715,11 @@ elif page == "🎓 Beginner's Guide":
             min_price *= (1 + MODIFIERS["sql_percent"])
             max_price *= (1 + MODIFIERS["sql_percent"])
 
-        # Add headunit cost if needed
-        if current_setup == "Stock" and tier_name in ["Enhanced", "Audiophile", "Competition"]:
+        # For Budget SPL tier, no additional headunit cost
+        if tier_name == "Budget SPL":
+            pass  # Budget tier is minimal
+        # Add headunit cost if needed for other tiers
+        elif current_setup == "Stock" and tier_name in ["Enhanced", "Audiophile", "Competition"]:
             min_price += MODIFIERS["aftermarket_radio_cost"]
             max_price += MODIFIERS["aftermarket_radio_cost"]
 
@@ -760,7 +781,9 @@ elif page == "🎓 Beginner's Guide":
                         f"Keep Install Simple: {'Yes' if st.session_state.bg_install_complexity else 'No'}\n"
                         f"Aesthetic Goal: {st.session_state.bg_aesthetic_focus}\n"
                         f"Goal Point: {st.session_state.bg_goal_point}\n"
-                        f"Decibel Goal: {st.session_state.bg_decibel_goal if st.session_state.bg_decibel_goal else 'Not Specified'}"
+                        f"Decibel Goal: {st.session_state.bg_decibel_goal if st.session_state.bg_decibel_goal else 'Not Specified'}\n"
+                        f"Enclosure Type: {st.session_state.bg_enclosure_type}\n"
+                        f"Component Budget Strategy: {st.session_state.bg_component_strategy}"
                     )
 
                     # Create the new detailed prompt that includes the databases
@@ -769,14 +792,18 @@ You are a world-class car audio system designer for beginners. Your task is to c
 
 **CRITICAL INSTRUCTIONS:**
 1.  **Use Provided Databases:** You MUST select specific components (subwoofers, amplifiers, headunits, processors) from the JSON databases provided below. Do not invent components.
-2.  **Create Two Distinct Builds:** Design two different system options that fit the user's goals. For example, one focused more on sound quality (SQ) and one on loudness/bass (SPL), or two different brands. Give each build a descriptive name (e.g., "The Clarity Build," "The Basshead's Budget Build").
-3.  **Stay Within Budget:** The total cost of the components for each build MUST fall within the user's "Estimated Final Price Range". You must show the estimated total price for each build.
-4.  **Explain Your Choices:** For each component in each build, briefly explain WHY you chose it and how it fits the user's goals (music taste, loudness, budget, etc.).
-5.  **Handle Missing Components:** The databases may not include all necessary parts (like door speakers or wiring kits). If a required component is not in the database, you must:
+2.  **Create Two Distinct Builds:** Design two different system options that fit the user's goals. For example, one focused more on sound quality (SQ) and one on loudness/bass (SPL), or two different brands. Give each build a descriptive name (e.g., "The Clarity Build," "The Budget Basshead Build").
+3.  **Respect Enclosure & Strategy:** The user has specified an enclosure type (e.g., sealed, ported, bandpass, no-wall, trunk-wall) and a component budget strategy. Use these to guide your recommendations:
+    - If "Amp & Enclosure Focus": Prioritize affordable but powerful amps (like Taramps) and excellent enclosure design. Sub quality is secondary.
+    - If "Speaker Quality Focus": Recommend high-quality subwoofers with a quality amp, but an economy-grade amplifier.
+    - If "Balanced": Spread the budget equally across amp, sub, and enclosure quality.
+4.  **Stay Within Budget:** The total cost of the components for each build MUST fall within the user's "Estimated Final Price Range". You must show the estimated total price for each build.
+5.  **Explain Your Choices:** For each component in each build, briefly explain WHY you chose it and how it fits the user's goals (music taste, loudness, budget, enclosure type, strategy, etc.).
+6.  **Handle Missing Components:** The databases may not include all necessary parts (like door speakers or wiring kits). If a required component is not in the database, you must:
     a. Recommend a *type* and *size* of component (e.g., "6.5-inch Component Speakers").
     b. Suggest a reasonable estimated price for that missing item.
     c. Include this estimated price in the build's total cost.
-6.  **Output Format:** Present the two builds clearly and separately. Use Markdown for formatting (e.g., headers, bold text, lists).
+7.  **Output Format:** Present the two builds clearly and separately. Use Markdown for formatting (e.g., headers, bold text, lists).
 
 **USER'S QUESTIONNAIRE:**
 ---
