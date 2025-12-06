@@ -64,7 +64,8 @@ def load_data():
     try:
         with open("wiring_guide.json", "r") as f:
             wiring_guide_db = json.load(f)
-    except:
+    except Exception as e:
+        st.error(f"Error loading wiring_guide.json: {e}")
         wiring_guide_db = {}
 
     return sub_db, model_list, prompts, amplifier_db, battery_electrical_db, headunits_processors_db, wiring_guide_db
@@ -500,7 +501,6 @@ elif page == "🧪 Gear Lab":
 
     # Onglet Wiring Guide
     with tabs[4]:
-        st.write(WIRING_GUIDE_DB)
         st.header(WIRING_GUIDE_DB.get("wiring_guide", {}).get("title", "Wiring & Installation Master Guide"))
 
         # Create two columns
