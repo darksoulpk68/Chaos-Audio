@@ -500,6 +500,7 @@ elif page == "🧪 Gear Lab":
 
     # Onglet Wiring Guide
     with tabs[4]:
+        st.write(WIRING_GUIDE_DB)
         st.header(WIRING_GUIDE_DB.get("wiring_guide", {}).get("title", "Wiring & Installation Master Guide"))
 
         # Create two columns
