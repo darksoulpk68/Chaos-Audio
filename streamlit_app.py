@@ -500,205 +500,32 @@ elif page == "🧪 Gear Lab":
 
     # Onglet Wiring Guide
     with tabs[4]:
-        st.header("Wiring & Installation Master Guide")
-        
-        # Create two columns
+        wiring_guide_data = WIRING_GUIDE_DB.get("wiring_guide", {})
+        st.header(wiring_guide_data.get("title", "Wiring & Installation Master Guide"))
+
         col1, col2 = st.columns(2, gap="large")
 
-        # ==========================================
-        # COLUMN 1: INSTALLATION ESSENTIALS (The "Must-Dos")
-        # ==========================================
         with col1:
-            st.subheader("🛠️ Installation Essentials")
-            st.info("The mandatory steps for a safe, functional system.")
+            essentials = wiring_guide_data.get("installation_essentials", {})
+            st.subheader(essentials.get("title", "🛠️ Installation Essentials"))
+            st.info(essentials.get("description", "The mandatory steps for a safe, functional system."))
+            for i, guide in enumerate(essentials.get("guides", [])):
+                st.markdown(f"#### {guide['title']}")
+                st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value=guide.get("difficulty", "Beginner"), disabled=True, key=f"essential_diff_{i}")
+                with st.expander(guide.get("details", {}).get("summary", "")):
+                    st.markdown(guide.get("details", {}).get("content", ""))
+                st.divider()
 
-            # 1. The Big Three
-            st.markdown("#### 1. The 'Big Three' Upgrade")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_1")
-            with st.expander("The foundation of high power. (Click to Expand)"):
-                st.markdown("""
-                **What is it?** Upgrading 3 key cables to 1/0 AWG OFC:
-                1. Alternator Pos (+) -> Battery Pos (+)
-                2. Battery Neg (-) -> Chassis Ground
-                3. Engine Block -> Chassis Ground
-
-                **Why?** Prevents dimming lights and allows your alternator to actually charge your battery efficiently.
-                """)
-
-            st.divider()
-
-            # 2. Ground Point
-            st.markdown("#### 2. The Ground Point Truth")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_7")
-            with st.expander("Paint is an insulator! (Click to Expand)"):
-                st.markdown("""
-                **The Golden Rule:** You must sand away 100% of the paint and primer until you see shiny, bare silver metal.
-                
-                **The Technique:**
-                1. Find a solid chassis bolt (seat belt bolts are great).
-                2. Use a wire wheel or sandpaper to expose bare metal.
-                3. Use a star washer to 'bite' into the metal.
-                4. Bolt it down and spray clear coat over it to prevent rust.
-                """)
-
-            st.divider()
-
-            # 3. Fusing Strategy
-            st.markdown("#### 3. Fusing Strategy 101")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_8")
-            with st.expander("Fuse the wire, not the amp. (Click to Expand)"):
-                st.markdown("""
-                **Location:** Must be within 18 inches of the battery positive terminal.
-                
-                **The Logic:** If your power wire shorts against the frame, the fuse blows to stop the car from catching fire. 
-                
-                **Sizing:** Fuse for the *wire's* limit, not the amp's. (e.g., 4 AWG OFC = Max 150A fuse).
-                """)
-
-            st.divider()
-
-            # 4. Firewall Safety
-            st.markdown("#### 4. The Guillotine Effect (Grommets)")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_10")
-            with st.expander("Don't let the firewall slice your wire. (Click to Expand)"):
-                st.markdown("""
-                Passing 0-Gauge wire through a metal firewall without protection is a guaranteed short circuit waiting to happen.
-                
-                **The Fix:** Always drill a hole and insert a thick **Rubber Grommet** or a waterproof **Cable Gland**. Never use just electrical tape.
-                """)
-
-            st.divider()
-
-            # 5. Setting Gains
-            st.markdown("#### 5. Setting Gains with a Multimeter")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_2")
-            with st.expander("It is NOT a volume knob. (Click to Expand)"):
-                st.markdown("""
-                **The Math:** `Voltage = sqrt(RMS Power * Impedance)`
-                
-                **The Steps:**
-                1. Unplug speakers.
-                2. Play a 40Hz (Sub) or 1kHz (Mids) test tone at 0dB.
-                3. Turn headunit to 75% volume.
-                4. Measure AC Voltage at amp outputs.
-                5. Turn gain knob until voltage matches your math.
-                """)
-
-            st.divider()
-
-            # 6. Subsonic Filter
-            st.markdown("#### 6. Saving Ported Subs (Subsonic)")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Advanced", disabled=True, key="diff_13")
-            with st.expander("The invisible safety net. (Click to Expand)"):
-                st.markdown("""
-                **Mandatory for Ported Boxes.**
-                
-                **Why?** Below the tuning frequency, a ported box loses all pressure. The sub will flop around ("unload") and tear itself apart.
-                
-                **The Setting:** Set HPF/Subsonic to **3-5Hz below** your box tuning. (Tuned to 35Hz? Set to 31Hz).
-                """)
-            
-            st.divider()
-
-            # 7. Second Battery Safety
-            st.markdown("#### 7. Adding a Second Battery")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Expert", disabled=True, key="diff_4")
-            with st.expander("Isolators vs. Direct Connection. (Click to Expand)"):
-                st.markdown("""
-                **The Risk:** Connecting a resting AGM (12.6V) to a Lithium (13.3V+) creates a 'vampire' loop where they fight each other.
-                
-                **The Fix:** Use a **Battery Isolator** relay to separate them when the car is off, OR match chemistries perfectly. Always fuse the wire at BOTH ends (front battery and rear battery).
-                """)
-
-        # ==========================================
-        # COLUMN 2: TIPS, TRICKS & HACKS (The "Pro-Mode")
-        # ==========================================
         with col2:
-            st.subheader("💡 Pro Tips & Tricks")
-            st.info("Hacks to make your install look and perform like a pro.")
-
-            # 1. Wire Ferrules
-            st.markdown("#### 1. Wire Ferrules")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_5")
-            with st.expander("Stop using bare wire. (Click to Expand)"):
-                st.markdown("""
-                **The Pro Look:** Crimp a metal ferrule onto the end of your stripped wire. 
-                
-                **Why?** It prevents stray wire strands from causing shorts and provides a solid, flat surface for the amp terminal screw to bite down on.
-                """)
-
-            st.divider()
-
-            # 2. Techflex / Braiding
-            st.markdown("#### 2. Techflex & Braiding")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_12")
-            with st.expander("Make it look like a factory harness. (Click to Expand)"):
-                st.markdown("""
-                Cover your blue/red power wires with black nylon braided sleeving (Techflex). 
-                
-                **Benefits:** Looks amazing, protects against abrasion/rubbing cuts, and adds heat resistance in the engine bay.
-                """)
-
-            st.divider()
-
-            # 3. RCA Routing
-            st.markdown("#### 3. The 'Opposite Sides' Rule")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_6")
-            with st.expander("Prevent engine whine noise. (Click to Expand)"):
-                st.markdown("""
-                **The Rule:** Run Power down the Driver side, and Signal (RCA) down the Passenger side.
-                
-                **Why?** High current in power wires creates a magnetic field that leaks noise into sensitive RCA cables. Separation is key.
-                """)
-
-            st.divider()
-
-            # 4. Sound Deadening
-            st.markdown("#### 4. Strategic Sound Deadening")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Intermediate", disabled=True, key="diff_3")
-            with st.expander("Stop the rattle, gain the bass. (Click to Expand)"):
-                st.markdown("""
-                **Don't do the whole car yet.** Focus on the front doors (inner and outer skin) and the trunk lid. 
-                
-                **The Gain:** Stiffening the metal means the energy stays inside the car as Bass, rather than escaping outside as Rattle.
-                """)
-
-            st.divider()
-
-            # 5. The Relay Trick
-            st.markdown("#### 5. The Relay Trick (Remote)")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Advanced", disabled=True, key="diff_9")
-            with st.expander("Save your headunit output. (Click to Expand)"):
-                st.markdown("""
-                **The Problem:** Turning on 3 amps + fans with one thin remote wire burns out the headunit.
-                
-                **The Fix:** Use a simple 12V Relay. The headunit triggers the relay, and the relay sends battery power to turn on all your equipment.
-                """)
-
-            st.divider()
-
-            # 6. Polarity Pop Test
-            st.markdown("#### 6. The 9V Battery Pop Test")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Beginner", disabled=True, key="diff_11")
-            with st.expander("Find positive/negative instantly. (Click to Expand)"):
-                st.markdown("""
-                Lost your wire labels? Touch the speaker wires to a 9V battery.
-                
-                * **Cone jumps OUT:** Positive is on Positive.
-                * **Cone sucks IN:** Positive is on Negative.
-                """)
-
-            st.divider()
-
-            # 7. Voltage Drop Test
-            st.markdown("#### 7. Real-World Voltage Test")
-            st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value="Advanced", disabled=True, key="diff_14")
-            with st.expander("Diagnose the bottleneck. (Click to Expand)"):
-                st.markdown("""
-                **The Test:** Measure voltage at the **Amp Inputs** while playing music full tilt. 
-                
-                **The Verdict:** If your battery reads 14V but your amp reads 12V, your wire is too thin or your ground is bad. You are losing 2V just in resistance!
-                """)
+            pro_tips = wiring_guide_data.get("pro_tips_and_tricks", {})
+            st.subheader(pro_tips.get("title", "💡 Pro Tips & Tricks"))
+            st.info(pro_tips.get("description", "Hacks to make your install look and perform like a pro."))
+            for i, guide in enumerate(pro_tips.get("guides", [])):
+                st.markdown(f"#### {guide['title']}")
+                st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced", "Expert"], value=guide.get("difficulty", "Beginner"), disabled=True, key=f"pro_tip_diff_{i}")
+                with st.expander(guide.get("details", {}).get("summary", "")):
+                    st.markdown(guide.get("details", {}).get("content", ""))
+                st.divider()
 
     # Onglet Other Accessories
     with tabs[5]:
