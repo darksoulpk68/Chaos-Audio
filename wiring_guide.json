@@ -50,7 +50,7 @@
           "difficulty": "Advanced",
           "details": {
             "summary": "The invisible safety net. (Click to Expand)",
-            "content": "**Mandatory for Ported Boxes.**\n\n**Why?** Below the tuning frequency, a ported box loses all pressure. The sub will flop around ("unload") and tear itself apart.\n\n**The Setting:** Set HPF/Subsonic to **3-5Hz below** your box tuning. (Tuned to 35Hz? Set to 31Hz)."
+            "content": "**Mandatory for Ported Boxes.**\n\n**Why?** Below the tuning frequency, a ported box loses all pressure. The sub will flop around ('unload') and tear itself apart.\n\n**The Setting:** Set HPF/Subsonic to **3-5Hz below** your box tuning. (Tuned to 35Hz? Set to 31Hz)."
           }
         },
         {
