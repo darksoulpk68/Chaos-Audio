@@ -669,25 +669,7 @@ elif page == "🎓 Beginner's Guide":
         }
     ]
 
-    # Handle tutorial actions via query params (prev/next/close) to avoid JS click issues
-    qp = st.experimental_get_query_params()
-    if 'tutorial_action' in qp:
-        action = qp.get('tutorial_action', [None])[0]
-        try:
-            step_from_q = int(qp.get('step', [st.session_state.tutorial_step])[0])
-        except:
-            step_from_q = st.session_state.tutorial_step
-
-        if action == 'next':
-            st.session_state.tutorial_step = min(st.session_state.tutorial_step + 1, len(TUTORIAL_STEPS)-1)
-        elif action == 'prev':
-            st.session_state.tutorial_step = max(st.session_state.tutorial_step - 1, 0)
-        elif action == 'close':
-            st.session_state.tutorial_mode = False
-
-        # clear params and rerun
-        st.experimental_set_query_params()
-        st.experimental_rerun()
+    
 
     # Tutorial CSS for spotlight effect and smart bubble positioning
     tutorial_css = """
