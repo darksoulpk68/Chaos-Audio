@@ -784,35 +784,33 @@ elif page == "🎓 Beginner's Guide":
         if current_step < len(TUTORIAL_STEPS):
             step_data = TUTORIAL_STEPS[current_step]
             
-            # Create tutorial window HTML
-            next_button = ""
-            if current_step < len(TUTORIAL_STEPS) - 1:
-                next_button = f"""<button class="tutorial-btn tutorial-btn-next" onclick="document.getElementById('tutorial-next').click()">Next →</button>"""
+            # Create tutorial window with Streamlit buttons
+            tutorial_col1, tutorial_col2 = st.columns(2)
             
-            tutorial_html = f"""
-            <div class="tutorial-window" style="top: 20%; left: 50%; transform: translateX(-50%);">
-                <h3>{step_data['title']}</h3>
-                <p>{step_data['description']}</p>
-                <div class="tutorial-buttons">
-                    <button class="tutorial-btn tutorial-btn-close" onclick="document.getElementById('tutorial-close-btn').click()">Close Tutorial</button>
-                    {next_button}
-                </div>
-                <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
-            </div>
-            """
-            st.markdown(tutorial_html, unsafe_allow_html=True)
-            
-            # Hidden buttons for JS clicks
-            col_a, col_b = st.columns(2)
-            with col_a:
-                if st.button("", key="tutorial-close-btn", label_visibility="collapsed"):
+            with tutorial_col1:
+                if st.button("✕ Close Tutorial", key=f"tut_close_{current_step}"):
                     st.session_state.tutorial_mode = False
                     st.rerun()
-            with col_b:
-                if st.button("", key="tutorial-next", label_visibility="collapsed"):
-                    if st.session_state.tutorial_step < len(TUTORIAL_STEPS) - 1:
+            
+            with tutorial_col2:
+                if current_step < len(TUTORIAL_STEPS) - 1:
+                    if st.button("Next →", key=f"tut_next_{current_step}", type="primary"):
                         st.session_state.tutorial_step += 1
                         st.rerun()
+                else:
+                    if st.button("Done!", key=f"tut_done_{current_step}", type="primary"):
+                        st.session_state.tutorial_mode = False
+                        st.rerun()
+            
+            # Display tutorial info box
+            st.info(f"""
+            ### {step_data['title']}
+            
+            {step_data['description']}
+            
+            ---
+            **Step {current_step + 1} of {len(TUTORIAL_STEPS)}**
+            """)
 
     # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
     if 'bg_selected_tier' not in st.session_state:
