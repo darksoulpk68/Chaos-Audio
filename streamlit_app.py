@@ -667,16 +667,27 @@ elif page == "🎓 Beginner's Guide":
         }
     ]
 
-    # Tutorial CSS for bubble tooltip with arrow pointing to element
+    # Tutorial CSS for spotlight effect and smart bubble positioning
     tutorial_css = """
     <style>
-    .tutorial-overlay {
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .tutorial-spotlight {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.7);
         z-index: 998;
         pointer-events: none;
     }
@@ -685,7 +696,7 @@ elif page == "🎓 Beginner's Guide":
         position: fixed;
         border: 3px solid #FF6B35;
         border-radius: 8px;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
         z-index: 999;
         pointer-events: none;
     }
@@ -696,10 +707,11 @@ elif page == "🎓 Beginner's Guide":
         border: 2px solid #FF6B35;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         z-index: 1000;
-        max-width: 380px;
+        max-width: 350px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        animation: slideIn 0.3s ease-out;
     }
     
     .tutorial-bubble h3 {
@@ -724,56 +736,49 @@ elif page == "🎓 Beginner's Guide":
         border-style: solid;
     }
     
-    .tutorial-bubble-arrow-top {
+    .tutorial-bubble-arrow.arrow-left {
+        left: -12px;
+        top: 30px;
+        border-width: 8px 12px 8px 0;
+        border-color: transparent white transparent transparent;
+    }
+    
+    .tutorial-bubble-arrow.arrow-right {
+        right: -12px;
+        top: 30px;
+        border-width: 8px 0 8px 12px;
+        border-color: transparent transparent transparent white;
+    }
+    
+    .tutorial-bubble-arrow.arrow-top {
         top: -12px;
         left: 30px;
         border-width: 0 8px 12px 8px;
         border-color: transparent transparent white transparent;
     }
     
-    .tutorial-bubble-arrow-bottom {
+    .tutorial-bubble-arrow.arrow-bottom {
         bottom: -12px;
         left: 30px;
         border-width: 12px 8px 0 8px;
         border-color: white transparent transparent transparent;
     }
     
-    .tutorial-bubble-arrow-top::after {
-        content: '';
-        position: absolute;
-        top: -14px;
-        left: -8px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 8px 12px 8px;
-        border-color: transparent transparent #FF6B35 transparent;
-    }
-    
-    .tutorial-bubble-arrow-bottom::after {
-        content: '';
-        position: absolute;
-        bottom: -14px;
-        left: -8px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 12px 8px 0 8px;
-        border-color: #FF6B35 transparent transparent transparent;
-    }
-    
-    .tutorial-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 16px;
-    }
-    
     .tutorial-progress {
-        margin-top: 12px;
+        margin: 12px 0 0 0;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
         text-align: center;
         color: #999;
         font-size: 12px;
         font-weight: 500;
+    }
+    
+    .tutorial-buttons-container {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 16px;
     }
     </style>
     """
@@ -794,42 +799,88 @@ elif page == "🎓 Beginner's Guide":
     # Render tutorial if active
     if st.session_state.tutorial_mode:
         st.markdown(tutorial_css, unsafe_allow_html=True)
-        st.markdown("""<div class="tutorial-overlay"></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class="tutorial-spotlight"></div>""", unsafe_allow_html=True)
         
         current_step = st.session_state.tutorial_step
         if current_step < len(TUTORIAL_STEPS):
             step_data = TUTORIAL_STEPS[current_step]
             
-            # Create tutorial bubble HTML with arrow pointing to element
-            bubble_arrow = '<div class="tutorial-bubble-arrow tutorial-bubble-arrow-bottom"></div>'
+            # Determine bubble position based on step
+            # Position: right side by default, left if on right side, bottom if on form
+            bubble_position = "right"
+            arrow_direction = "arrow-left"
+            top_offset = "30%"
+            left_offset = "55%"
             
-            tutorial_bubble_html = f"""
-            <div class="tutorial-bubble" style="top: 50%; left: 50%; transform: translate(-50%, -50%); animation: slideIn 0.3s ease-out;">
-                {bubble_arrow}
+            # Adjust position based on which section we're in
+            if current_step < 3:
+                top_offset = "18%"
+                left_offset = "68%"
+                arrow_direction = "arrow-left"
+            elif current_step < 6:
+                top_offset = "40%"
+                left_offset = "68%"
+                arrow_direction = "arrow-left"
+            elif current_step < 9:
+                top_offset = "55%"
+                left_offset = "20%"
+                arrow_direction = "arrow-right"
+            elif current_step < 12:
+                top_offset = "70%"
+                left_offset = "68%"
+                arrow_direction = "arrow-left"
+            else:
+                top_offset = "12%"
+                left_offset = "50%"
+                arrow_direction = "arrow-bottom"
+            
+            # Create arrow HTML
+            arrow_html = f'<div class="tutorial-bubble-arrow {arrow_direction}"></div>'
+            
+            # Create buttons HTML
+            button_html = ""
+            if current_step > 0:
+                button_html += f'<button style="padding: 8px 12px; background: #e0e0e0; color: #333; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px; margin-right: 6px;" onclick="document.getElementById(\'tut_prev_hidden_{current_step}\').click()">← Prev</button>'
+            
+            if current_step < len(TUTORIAL_STEPS) - 1:
+                button_html += f'<button style="padding: 8px 12px; background: #FF6B35; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px; margin-right: 6px;" onclick="document.getElementById(\'tut_next_hidden_{current_step}\').click()">Next →</button>'
+            else:
+                button_html += f'<button style="padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px; margin-right: 6px;" onclick="document.getElementById(\'tut_next_hidden_{current_step}\').click()">Done! ✓</button>'
+            
+            button_html += f'<button style="padding: 8px 10px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px;" onclick="document.getElementById(\'tut_close_hidden_{current_step}\').click()">✕</button>'
+            
+            # Create tutorial bubble HTML
+            bubble_html = f"""
+            <div class="tutorial-bubble" style="top: {top_offset}; left: {left_offset};">
+                {arrow_html}
                 <h3>{step_data['title']}</h3>
                 <p>{step_data['description']}</p>
+                <div class="tutorial-buttons-container">
+                    {button_html}
+                </div>
                 <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
             </div>
             """
-            st.markdown(tutorial_bubble_html, unsafe_allow_html=True)
+            st.markdown(bubble_html, unsafe_allow_html=True)
             
-            # Navigation buttons
-            tutorial_col1, tutorial_col2, tutorial_col3 = st.columns([1, 1, 1])
-            
-            with tutorial_col1:
-                if st.button("✕ Close", key=f"tut_close_{current_step}"):
+            # Hidden buttons for interactions
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if st.button("prev", key=f"tut_prev_hidden_{current_step}", label_visibility="collapsed"):
+                    if st.session_state.tutorial_step > 0:
+                        st.session_state.tutorial_step -= 1
+                        st.rerun()
+            with col2:
+                if st.button("next", key=f"tut_next_hidden_{current_step}", label_visibility="collapsed"):
+                    if st.session_state.tutorial_step < len(TUTORIAL_STEPS) - 1:
+                        st.session_state.tutorial_step += 1
+                    else:
+                        st.session_state.tutorial_mode = False
+                    st.rerun()
+            with col3:
+                if st.button("close", key=f"tut_close_hidden_{current_step}", label_visibility="collapsed"):
                     st.session_state.tutorial_mode = False
                     st.rerun()
-            
-            with tutorial_col3:
-                if current_step < len(TUTORIAL_STEPS) - 1:
-                    if st.button("Next →", key=f"tut_next_{current_step}", type="primary"):
-                        st.session_state.tutorial_step += 1
-                        st.rerun()
-                else:
-                    if st.button("Done! ✓", key=f"tut_done_{current_step}", type="primary"):
-                        st.session_state.tutorial_mode = False
-                        st.rerun()
 
     # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
     if 'bg_selected_tier' not in st.session_state:
