@@ -592,6 +592,228 @@ elif page == "🎓 Beginner's Guide":
     st.header("🎓 Beginner's Guide: System Questionnaire")
     st.write("Configure your preferences below. The package prices will update in real-time based on your choices. Finally, select a package and build your plan.")
 
+    # --- TUTORIAL SYSTEM INITIALIZATION ---
+    if 'tutorial_mode' not in st.session_state:
+        st.session_state.tutorial_mode = False
+    if 'tutorial_step' not in st.session_state:
+        st.session_state.tutorial_step = 0
+
+    # Tutorial steps definition
+    TUTORIAL_STEPS = [
+        {
+            "title": "📖 Welcome to Beginner's Guide!",
+            "description": "This guide will help you configure your perfect car audio system. Let's start by understanding what you need.",
+            "target": "music_genres"
+        },
+        {
+            "title": "🎵 Music Genres",
+            "description": "Select the music genres you listen to most. This helps the AI recommend components that match your listening style. For example, electronic music benefits from deeper bass, while classical music needs clarity.",
+            "target": "music_genres"
+        },
+        {
+            "title": "🔊 Sound Preference",
+            "description": "Choose what's most important to you:\n• Balance: All-around good sound\n• Bass: Deep, powerful lows\n• Clarity: Crisp, detailed highs and vocals",
+            "target": "sound_preference"
+        },
+        {
+            "title": "🚗 Vehicle Information",
+            "description": "Enter your car's details (Make, Model, Year). This helps determine available space and power limitations for your system.",
+            "target": "car_info"
+        },
+        {
+            "title": "📦 Current Setup",
+            "description": "Tell us what audio equipment you already have:\n• Stock: Factory system\n• Aftermarket HU: Already have an aftermarket headunit\n• Aftermarket Speakers: Already have upgraded speakers",
+            "target": "current_setup"
+        },
+        {
+            "title": "📈 Loudness Goal",
+            "description": "How loud do you want your system?\n• Subtle: Just above factory\n• Lively: Good for everyday driving\n• Loud/Very Loud: Requires significant power upgrades\n• Competition: Maximum output for contests",
+            "target": "loudness_preference"
+        },
+        {
+            "title": "🔧 Installation Plan",
+            "description": "Choose your installation method:\n• DIY: You install it yourself (saves money)\n• Professional: Expert installation (adds cost but ensures quality)",
+            "target": "installation_plan"
+        },
+        {
+            "title": "🎯 Audio Goal",
+            "description": "Define your primary audio goal:\n• Audiophile (SQ): Pure sound quality\n• SPL (Bass): Maximum loudness\n• SQL (Balanced): Mix of quality and loudness",
+            "target": "goal_point"
+        },
+        {
+            "title": "✨ Aesthetic Goal",
+            "description": "Choose your installation style:\n• Function over form: Basic, hidden installation\n• Luxury/Beauty: Custom fabrication and premium materials (higher cost)",
+            "target": "aesthetic_focus"
+        },
+        {
+            "title": "🎚️ Enclosure Type",
+            "description": "Select your subwoofer enclosure design:\n• Sealed: Accurate, tight bass\n• Ported: Louder, boomy bass\n• Bandpass: Extreme SPL output\n• No Wall: Maximum flex and power\n• Wall Setups: Space-efficient designs",
+            "target": "enclosure_type"
+        },
+        {
+            "title": "💰 Component Strategy",
+            "description": "How should we allocate your budget?\n• Balanced: Equal across amp, sub, enclosure\n• Amp & Enclosure Focus: Save on sub, maximize SPL\n• Speaker Quality Focus: Budget amp, premium subs",
+            "target": "component_strategy"
+        },
+        {
+            "title": "💎 Project Tier",
+            "description": "Select your budget tier:\n• Budget SPL: Maximum loudness on a budget\n• Essential: Great starter system\n• Enhanced: Powerful and clear\n• Audiophile: Premium components\n• Competition: Top-tier everything",
+            "target": "tier_selection"
+        },
+        {
+            "title": "✅ Ready to Go!",
+            "description": "You've completed the guide! Now select your tier and click 'Build My Plan' to get AI-powered recommendations tailored to your preferences.",
+            "target": None
+        }
+    ]
+
+    # Tutorial CSS for blur effect and floating window
+    tutorial_css = """
+    <style>
+    .tutorial-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 999;
+        pointer-events: none;
+    }
+    
+    .tutorial-window {
+        position: fixed;
+        background: white;
+        border: 3px solid #FF6B35;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        max-width: 400px;
+        font-family: Arial, sans-serif;
+    }
+    
+    .tutorial-window h3 {
+        margin: 0 0 16px 0;
+        color: #FF6B35;
+        font-size: 20px;
+    }
+    
+    .tutorial-window p {
+        margin: 0 0 20px 0;
+        color: #333;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+    
+    .tutorial-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+    }
+    
+    .tutorial-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .tutorial-btn-next {
+        background: #FF6B35;
+        color: white;
+        flex: 1;
+    }
+    
+    .tutorial-btn-next:hover {
+        background: #E55A24;
+    }
+    
+    .tutorial-btn-close {
+        background: #e0e0e0;
+        color: #333;
+        padding: 10px 20px;
+    }
+    
+    .tutorial-btn-close:hover {
+        background: #d0d0d0;
+    }
+    
+    .tutorial-progress {
+        margin-top: 12px;
+        text-align: center;
+        color: #999;
+        font-size: 12px;
+    }
+    
+    [data-tutorial-target] {
+        position: relative;
+        z-index: 1001 !important;
+        filter: none !important;
+    }
+    
+    .tutorial-highlight {
+        box-shadow: 0 0 0 3px #FF6B35 !important;
+        border-radius: 8px;
+    }
+    </style>
+    """
+
+    # Display tutorial controls in header
+    header_col1, header_col2, header_col3 = st.columns([3, 1, 1])
+    with header_col2:
+        if st.button("📚 Start Tutorial", key="tutorial_start"):
+            st.session_state.tutorial_mode = True
+            st.session_state.tutorial_step = 0
+            st.rerun()
+    
+    with header_col3:
+        if st.session_state.tutorial_mode and st.button("✕ Close Tutorial", key="tutorial_close"):
+            st.session_state.tutorial_mode = False
+            st.rerun()
+
+    # Render tutorial if active
+    if st.session_state.tutorial_mode:
+        st.markdown(tutorial_css, unsafe_allow_html=True)
+        st.markdown("""<div class="tutorial-overlay"></div>""", unsafe_allow_html=True)
+        
+        current_step = st.session_state.tutorial_step
+        if current_step < len(TUTORIAL_STEPS):
+            step_data = TUTORIAL_STEPS[current_step]
+            
+            # Create tutorial window HTML
+            next_button = ""
+            if current_step < len(TUTORIAL_STEPS) - 1:
+                next_button = f"""<button class="tutorial-btn tutorial-btn-next" onclick="document.getElementById('tutorial-next').click()">Next →</button>"""
+            
+            tutorial_html = f"""
+            <div class="tutorial-window" style="top: 20%; left: 50%; transform: translateX(-50%);">
+                <h3>{step_data['title']}</h3>
+                <p>{step_data['description']}</p>
+                <div class="tutorial-buttons">
+                    <button class="tutorial-btn tutorial-btn-close" onclick="document.getElementById('tutorial-close-btn').click()">Close Tutorial</button>
+                    {next_button}
+                </div>
+                <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
+            </div>
+            """
+            st.markdown(tutorial_html, unsafe_allow_html=True)
+            
+            # Hidden buttons for JS clicks
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.button("", key="tutorial-close-btn", label_visibility="collapsed"):
+                    st.session_state.tutorial_mode = False
+                    st.rerun()
+            with col_b:
+                if st.button("", key="tutorial-next", label_visibility="collapsed"):
+                    if st.session_state.tutorial_step < len(TUTORIAL_STEPS) - 1:
+                        st.session_state.tutorial_step += 1
+                        st.rerun()
+
     # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
     if 'bg_selected_tier' not in st.session_state:
         st.session_state.bg_selected_tier = "Enhanced" # Default selection
