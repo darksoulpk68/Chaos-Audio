@@ -119,20 +119,20 @@ with st.sidebar:
         st.title("☢️ AlphaAudio")
     # SUPPRESSION DU CODE DE CHARGEMENT DE FICHIERS EN DEHORS DE LA FONCTION
     st.markdown("#### Menu")
-    if st.button("🎛️ Design Studio", width="stretch"):
-        st.session_state["page"] = "🎛️ Design Studio"
-        st.rerun() # Rerun to reflect page change immediately
-        
-    if st.button("🧪 Gear Lab", width="stretch"):
+    if st.button("🎓 Beginner's Guide", use_container_width=True):
+        st.session_state["page"] = "🎓 Beginner's Guide"
+        st.rerun()
+    
+    if st.button("🧪 Gear Lab", use_container_width=True):
         st.session_state["page"] = "🧪 Gear Lab"
         st.rerun()
         
-    if st.button("⚔️ Build Comparison", width="stretch"):
-        st.session_state["page"] = "⚔️ Build Comparison"
+    if st.button("🎛️ Design Studio", use_container_width=True):
+        st.session_state["page"] = "🎛️ Design Studio"
         st.rerun()
 
-    if st.button("🎓 Beginner's Guide", width="stretch"):
-        st.session_state["page"] = "🎓 Beginner's Guide"
+    if st.button("⚔️ Build Wars", use_container_width=True):
+        st.session_state["page"] = "⚔️ Build Wars"
         st.rerun()
     
     # Optional: allow user to add a short extra prompt used by the simulator
@@ -148,14 +148,14 @@ with st.sidebar:
     
     # Dynamic Tip based on current page
     page = st.session_state.get("page", "welcome") # Get current page, default to welcome
-    if page == "🎛️ Design Studio":
-        st.info("💡 **Tip:** Use this mode for deep, single-vehicle simulation.")
+    if page == "🎓 Beginner's Guide":
+        st.info("💡 **Tip:** Fill out the questionnaire to get a personalized audio system recommendation.")
     elif page == "🧪 Gear Lab":
         st.info("💡 **Tip:** Use the AI Recommender to find subs that fit your music style.")
-    elif page == "⚔️ Build Comparison":
+    elif page == "🎛️ Design Studio":
+        st.info("💡 **Tip:** Use this mode for deep, single-vehicle simulation.")
+    elif page == "⚔️ Build Wars":
         st.info("💡 **Tip:** Great for deciding between two different subwoofer brands.")
-    elif page == "🎓 Beginner's Guide":
-        st.info("💡 **Tip:** Fill out the questionnaire to get a personalized audio system recommendation.")
     elif page == "welcome":
         st.info("💡 **Tip:** Click a menu item to get started!")
 
@@ -558,8 +558,10 @@ elif page == "🧪 Gear Lab":
 # ==============================================================================
 # PAGE 3: BUILD COMPARISON
 # ==============================================================================
-elif page == "⚔️ Build Comparison":
-    st.header("⚔️ Build Arena: Compare Setups")
+# PAGE 4: BUILD WARS
+# ==============================================================================
+elif page == "⚔️ Build Wars":
+    st.header("⚔️ Build Wars: The Arena")
     
     num_builds = st.slider("How many builds?", 2, 4, 2)
     
