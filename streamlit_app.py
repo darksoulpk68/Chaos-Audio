@@ -837,48 +837,34 @@ elif page == "🎓 Beginner's Guide":
             # Create arrow HTML
             arrow_html = f'<div class="tutorial-bubble-arrow {arrow_direction}"></div>'
             
-            # Create buttons HTML
-            button_html = ""
-            if current_step > 0:
-                button_html += f'<button style="padding: 8px 12px; background: #e0e0e0; color: #333; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px; margin-right: 6px;" onclick="document.getElementById(\'tut_prev_hidden_{current_step}\').click()">← Prev</button>'
-            
-            if current_step < len(TUTORIAL_STEPS) - 1:
-                button_html += f'<button style="padding: 8px 12px; background: #FF6B35; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px; margin-right: 6px;" onclick="document.getElementById(\'tut_next_hidden_{current_step}\').click()">Next →</button>'
-            else:
-                button_html += f'<button style="padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px; margin-right: 6px;" onclick="document.getElementById(\'tut_next_hidden_{current_step}\').click()">Done! ✓</button>'
-            
-            button_html += f'<button style="padding: 8px 10px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 12px;" onclick="document.getElementById(\'tut_close_hidden_{current_step}\').click()">✕</button>'
-            
-            # Create tutorial bubble HTML
+            # Create tutorial bubble HTML (buttons will be Streamlit buttons below)
             bubble_html = f"""
             <div class="tutorial-bubble" style="top: {top_offset}; left: {left_offset};">
                 {arrow_html}
                 <h3>{step_data['title']}</h3>
                 <p>{step_data['description']}</p>
-                <div class="tutorial-buttons-container">
-                    {button_html}
-                </div>
                 <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
             </div>
             """
             st.markdown(bubble_html, unsafe_allow_html=True)
-            
-            # Hidden buttons for interactions
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if st.button("prev", key=f"tut_prev_hidden_{current_step}", label_visibility="collapsed"):
-                    if st.session_state.tutorial_step > 0:
-                        st.session_state.tutorial_step -= 1
-                        st.rerun()
-            with col2:
-                if st.button("next", key=f"tut_next_hidden_{current_step}", label_visibility="collapsed"):
-                    if st.session_state.tutorial_step < len(TUTORIAL_STEPS) - 1:
-                        st.session_state.tutorial_step += 1
-                    else:
-                        st.session_state.tutorial_mode = False
+
+            # Streamlit buttons for interactions (placed under the bubble)
+            btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
+            with btn_col1:
+                if current_step > 0 and st.button("← Prev", key=f"tut_prev_visible_{current_step}"):
+                    st.session_state.tutorial_step -= 1
                     st.rerun()
-            with col3:
-                if st.button("close", key=f"tut_close_hidden_{current_step}", label_visibility="collapsed"):
+            with btn_col2:
+                if current_step < len(TUTORIAL_STEPS) - 1:
+                    if st.button("Next →", key=f"tut_next_visible_{current_step}"):
+                        st.session_state.tutorial_step += 1
+                        st.rerun()
+                else:
+                    if st.button("Done! ✓", key=f"tut_done_visible_{current_step}"):
+                        st.session_state.tutorial_mode = False
+                        st.rerun()
+            with btn_col3:
+                if st.button("✕ Close", key=f"tut_close_visible_{current_step}"):
                     st.session_state.tutorial_mode = False
                     st.rerun()
 
