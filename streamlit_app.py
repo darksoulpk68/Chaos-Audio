@@ -863,19 +863,33 @@ elif page == "🎓 Beginner's Guide":
             <div class="tutorial-highlight" style="top: {hl_top}; left: {hl_left}; width: {hl_w}; height: {hl_h};"></div>
             """
 
-            # Create tutorial bubble HTML with action links (change query params)
-            prev_link = f"?tutorial_action=prev&step={current_step}"
-            next_link = f"?tutorial_action=next&step={current_step}"
-            close_link = f"?tutorial_action=close&step={current_step}"
+            # Create tutorial bubble HTML
 
+            # Build buttons as HTML <button> elements that trigger hidden Streamlit buttons via JS (no page reload)
             buttons_html = ""
             if current_step > 0:
-                buttons_html += f'<a href="{prev_link}" class="tutorial-btn" style="background:#e0e0e0;color:#333;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:6px;">← Prev</a>'
+                buttons_html += (
+                    "<button type=\"button\" class=\"tutorial-btn\" "
+                    "style=\"background:#e0e0e0;color:#333;padding:8px 12px;border-radius:6px;border:none;margin-right:6px;cursor:pointer;\" "
+                    "onclick=\"(function(){var btns=document.querySelectorAll('button');for(var i=0;i<btns.length;i++){if(btns[i].innerText&&btns[i].innerText.trim().toLowerCase()==='prev'){btns[i].click();break;}}})()\">← Prev</button>"
+                )
             if current_step < len(TUTORIAL_STEPS) - 1:
-                buttons_html += f'<a href="{next_link}" class="tutorial-btn" style="background:#FF6B35;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:6px;">Next →</a>'
+                buttons_html += (
+                    "<button type=\"button\" class=\"tutorial-btn\" "
+                    "style=\"background:#FF6B35;color:white;padding:8px 12px;border-radius:6px;border:none;margin-right:6px;cursor:pointer;\" "
+                    "onclick=\"(function(){var btns=document.querySelectorAll('button');for(var i=0;i<btns.length;i++){if(btns[i].innerText&&btns[i].innerText.trim().toLowerCase()==='next'){btns[i].click();break;}}})()\">Next →</button>"
+                )
             else:
-                buttons_html += f'<a href="{next_link}" class="tutorial-btn" style="background:#4CAF50;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:6px;">Done! ✓</a>'
-            buttons_html += f'<a href="{close_link}" class="tutorial-btn" style="background:#999;color:white;padding:8px 10px;border-radius:6px;text-decoration:none;">✕</a>'
+                buttons_html += (
+                    "<button type=\"button\" class=\"tutorial-btn\" "
+                    "style=\"background:#4CAF50;color:white;padding:8px 12px;border-radius:6px;border:none;margin-right:6px;cursor:pointer;\" "
+                    "onclick=\"(function(){var btns=document.querySelectorAll('button');for(var i=0;i<btns.length;i++){if(btns[i].innerText&&btns[i].innerText.trim().toLowerCase()==='next'){btns[i].click();break;}}})()\">Done! ✓</button>"
+                )
+            buttons_html += (
+                "<button type=\"button\" class=\"tutorial-btn\" "
+                "style=\"background:#999;color:white;padding:8px 10px;border-radius:6px;border:none;cursor:pointer;\" "
+                "onclick=\"(function(){var btns=document.querySelectorAll('button');for(var i=0;i<btns.length;i++){if(btns[i].innerText&&btns[i].innerText.trim().toLowerCase()==='close'){btns[i].click();break;}}})()\">✕</button>"
+            )
 
             bubble_html = f"""
             {highlight_html}
@@ -883,13 +897,33 @@ elif page == "🎓 Beginner's Guide":
                 {arrow_html}
                 <h3>{step_data['title']}</h3>
                 <p>{step_data['description']}</p>
-                <div class="tutorial-buttons-container">
-                    {buttons_html}
-                </div>
                 <div class="tutorial-progress">Step {current_step + 1} of {len(TUTORIAL_STEPS)}</div>
             </div>
             """
             st.markdown(bubble_html, unsafe_allow_html=True)
+
+            # Spacer to allow Streamlit buttons to visually overlap the bubble
+            st.markdown("<div style='height:0;margin-top:-120px;'></div>", unsafe_allow_html=True)
+
+            # Streamlit buttons rendered after the bubble but visually pulled up
+            btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
+            with btn_col1:
+                if current_step > 0 and st.button("← Prev", key=f"tut_prev_visible_{current_step}"):
+                    st.session_state.tutorial_step -= 1
+                    st.rerun()
+            with btn_col2:
+                if current_step < len(TUTORIAL_STEPS) - 1:
+                    if st.button("Next →", key=f"tut_next_visible_{current_step}"):
+                        st.session_state.tutorial_step += 1
+                        st.rerun()
+                else:
+                    if st.button("Done! ✓", key=f"tut_done_visible_{current_step}"):
+                        st.session_state.tutorial_mode = False
+                        st.rerun()
+            with btn_col3:
+                if st.button("✕ Close", key=f"tut_close_visible_{current_step}"):
+                    st.session_state.tutorial_mode = False
+                    st.rerun()
 
     # --- INITIALIZE SESSION STATE FOR SELECTIONS ---
     if 'bg_selected_tier' not in st.session_state:
